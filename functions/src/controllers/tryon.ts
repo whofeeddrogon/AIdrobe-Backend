@@ -12,18 +12,13 @@ export const virtualTryOn = functions
     .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
       
       const data: TryOnRequestData = payload.data || payload;
-      const { adapty_user_id, pose_image_base_64, clothing_image_base_64, clothing_images_base_64, model_type } = data;
+      const { adapty_user_id, pose_image_base_64, clothing_images_base_64, model_type } = data;
 
-      // Kıyafet listesini normalize et
-      let clothingImages: string[] = [];
-      if (clothing_images_base_64 && Array.isArray(clothing_images_base_64)) {
-        clothingImages = clothing_images_base_64;
-      } else if (clothing_image_base_64) {
-        clothingImages = [clothing_image_base_64];
-      }
+      // Artık sadece array kabul ediyoruz
+      const clothingImages = clothing_images_base_64 || [];
 
-      if (!adapty_user_id || !pose_image_base_64 || clothingImages.length === 0) {
-        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (adapty_user_id, pose_image_base_64, clothing_image_base_64 veya clothing_images_base_64).");
+      if (!adapty_user_id || !pose_image_base_64 || !Array.isArray(clothingImages) || clothingImages.length === 0) {
+        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (adapty_user_id, pose_image_base_64, clothing_images_base_64).");
       }
 
       try {

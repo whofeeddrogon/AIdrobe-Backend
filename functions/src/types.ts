@@ -55,8 +55,7 @@ export interface AnalyzeRequestData {
 export interface TryOnRequestData {
   adapty_user_id: string;
   pose_image_base_64: string;
-  clothing_image_base_64?: string; // Tekli kıyafet için (Geriye dönük uyumluluk)
-  clothing_images_base_64?: string[]; // Çoklu kıyafet için
+  clothing_images_base_64: string[]; // Artık tek ve zorunlu yöntem
   model_type?: "standard" | "nano-banana-pro"; // Model seçimi
 }
 
