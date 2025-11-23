@@ -35,34 +35,36 @@ export const virtualTryOn = functions
         let resultImageUrl: string | undefined;
 
         // Model seçimi ve mantığı
-        // Eğer nano-banana-pro seçildiyse VEYA birden fazla kıyafet varsa yeni modele git
-        if (model_type === "nano-banana-pro" || clothingImages.length > 1) {
+        // 1. Nano Banana Pro: 3+ kıyafet VEYA model_type='nano-banana-pro'
+        // 2. Nano Banana: 2 kıyafet VEYA model_type='nano-banana'
+        // 3. Legacy: Diğer durumlar (Tek kıyafet)
+
+        const proPrompt = `**GENERATE ONLY A SINGLE, HIGH-FIDELITY IMAGE.**
+
+                            **PRIMARY TASK: Perform a Photorealistic Virtual Try-On using ALL provided garment references.** The subject from the main input image (referred to as the 'input_image' or 'pose_image') will receive the new clothing.
+
+                            **CRITICAL PRESERVATION RULES (from 'input_image' ONLY):**
+                            1.  **Facial Identity & Expression:** The subject's face and facial expression from the 'input_image' **MUST remain absolutely unchanged**.
+                            2.  **Body Pose & Positioning:** The subject's exact body pose, hand placement, and overall body structure from the 'input_image' **MUST be strictly preserved**.
+                            3.  **Background Environment:** The **ENTIRE background environment of the 'input_image' MUST NOT be altered or replaced in any way.** It must remain exactly as it is.
+                            4.  **Existing Unreferenced Garments:** Any clothing or accessories already on the subject in the 'input_image' that were **NOT** supplied as separate reference garments **MUST be preserved exactly as they are**.
+
+                            **CLOTHING INTEGRATION & LAYERING RULES (from reference garments):**
+                            1.  **Full Integration:** You MUST use **EACH and EVERY provided reference garment** and integrate them onto the subject.
+                            2.  **Sequential Layering:** Systematically process and integrate these garments in a clear dimensional sequence. Prioritize outermost layers first (e.g., coat, jacket), then mid-layers (e.g., shirt, sweater), and finally innermost layers or accessories (e.g., t-shirt, tie) to prevent omission or confusion.
+                            3.  **Old Garment Removal:** Completely erase all remnants of the previous clothing **ONLY for the areas where new garments are being placed**.
+                            4.  **Realism & Blending:** Ensure seamless, realistic integration with natural fabric drape, texture, and fit according to the subject's body shape. The new garments must flawlessly match the 'input_image' scene's original lighting, shadows, and color grading.
+
+                            **FINAL OUTPUT QUALITY:** The final image must be high-fidelity and appear as an imperceptible, photorealistic edit.`;
+
+        if (model_type === "nano-banana-pro" || clothingImages.length > 3) {
             console.log("FAL AI Nano Banana Pro API'sine istek gönderiliyor...");
             
-            const prompt = `**GENERATE ONLY A SINGLE, HIGH-FIDELITY IMAGE.**
-
-**PRIMARY TASK: Perform a Photorealistic Virtual Try-On using ALL provided garment references.** The subject from the main input image (referred to as the 'input_image' or 'pose_image') will receive the new clothing.
-
-**CRITICAL PRESERVATION RULES (from 'input_image' ONLY):**
-1.  **Facial Identity & Expression:** The subject's face and facial expression from the 'input_image' **MUST remain absolutely unchanged**.
-2.  **Body Pose & Positioning:** The subject's exact body pose, hand placement, and overall body structure from the 'input_image' **MUST be strictly preserved**.
-3.  **Background Environment:** The **ENTIRE background environment of the 'input_image' MUST NOT be altered or replaced in any way.** It must remain exactly as it is.
-4.  **Existing Unreferenced Garments:** Any clothing or accessories already on the subject in the 'input_image' that were **NOT** supplied as separate reference garments **MUST be preserved exactly as they are**.
-
-**CLOTHING INTEGRATION & LAYERING RULES (from reference garments):**
-1.  **Full Integration:** You MUST use **EACH and EVERY provided reference garment** and integrate them onto the subject.
-2.  **Sequential Layering:** Systematically process and integrate these garments in a clear dimensional sequence. Prioritize outermost layers first (e.g., coat, jacket), then mid-layers (e.g., shirt, sweater), and finally innermost layers or accessories (e.g., t-shirt, tie) to prevent omission or confusion.
-3.  **Old Garment Removal:** Completely erase all remnants of the previous clothing **ONLY for the areas where new garments are being placed**.
-4.  **Realism & Blending:** Ensure seamless, realistic integration with natural fabric drape, texture, and fit according to the subject's body shape. The new garments must flawlessly match the 'input_image' scene's original lighting, shadows, and color grading.
-
-**FINAL OUTPUT QUALITY:** The final image must be high-fidelity and appear as an imperceptible, photorealistic edit.`; 
-
             const response = await axios.post(
                 "https://fal.run/fal-ai/nano-banana-pro",
                 {
-                    prompt: prompt,
+                    prompt: proPrompt,
                     image_url: `data:image/jpeg;base64,${pose_image_base_64}`,
-                    // Kıyafetleri de gönderiyoruz, modelin bunları nasıl işleyeceği prompt veya API parametrelerine bağlı
                     clothing_images: clothingImages.map(img => `data:image/jpeg;base64,${img}`),
                 },
                 {
@@ -74,6 +76,27 @@ export const virtualTryOn = functions
             );
             
             console.log("FAL AI Nano Banana Pro response alındı:", response.status);
+            resultImageUrl = response.data?.images?.[0]?.url;
+
+        } else if (clothingImages.length === 2 || clothingImages.length === 3) {
+            console.log("FAL AI Nano Banana API'sine istek gönderiliyor (Pro Prompt ile)...");
+
+            const response = await axios.post(
+                "https://fal.run/fal-ai/nano-banana",
+                {
+                    prompt: proPrompt,
+                    image_url: `data:image/jpeg;base64,${pose_image_base_64}`,
+                    clothing_images: clothingImages.map(img => `data:image/jpeg;base64,${img}`),
+                },
+                {
+                    headers: {
+                        "Authorization": `Key ${apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                },
+            );
+            
+            console.log("FAL AI Nano Banana response alındı:", response.status);
             resultImageUrl = response.data?.images?.[0]?.url;
 
         } else {
