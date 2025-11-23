@@ -1,0 +1,81 @@
+import * as functions from "firebase-functions/v1";
+import * as admin from "firebase-admin";
+import { db } from "../config";
+import { UserData, QuotaType } from "../types";
+import { getAdaptyProfile, calculateQuotaFromAdapty } from "./adapty";
+
+/**
+ * Firestore'da yeni bir kullanıcı profili oluşturur.
+ * Önce Adapty'de kullanıcının gerçekten var olup olmadığını doğrular.
+ */
+export async function createNewUser(userId: string): Promise<UserData> {
+  console.log(`Yeni kullanıcı oluşturuluyor: ${userId}`);
+  
+  const adaptyProfile = await getAdaptyProfile(userId);
+  if (!adaptyProfile) {
+    console.error(`User ${userId} does not exist in Adapty - blocking creation`);
+    throw new functions.https.HttpsError(
+      "permission-denied", 
+      "Geçersiz kullanıcı. Lütfen uygulamaya giriş yaptığınızdan emin olun."
+    );
+  }
+
+  console.log(`User ${userId} verified in Adapty, creating Firebase user...`);
+  
+  const quotaLimits = calculateQuotaFromAdapty(adaptyProfile);
+  
+  const userData: UserData = {
+    ...quotaLimits,
+    createdAt: new Date(),
+    lastSyncedWithAdapty: new Date(),
+  };
+  
+  await db.collection("users").doc(userId).set(userData);
+  console.log(`User ${userId} created with tier: ${userData.tier}`);
+  return userData;
+}
+
+/**
+ * Kullanıcının belirli bir eylem için kotasını kontrol eder ve günceller.
+ */
+export async function checkOrUpdateQuota(userId: string, quotaType: QuotaType): Promise<void> {
+  try {
+    console.log(`Checking quota for user: ${userId}, quotaType: ${quotaType}`);
+    
+    const userRef = db.collection("users").doc(userId);
+    const userDoc = await userRef.get();
+    
+    let userData: UserData;
+    
+    if (!userDoc.exists) {
+      console.log(`User ${userId} does not exist, creating new user...`);
+      userData = await createNewUser(userId);
+      console.log(`New user created successfully for ${userId}`);
+    } else {
+      userData = userDoc.data() as UserData;
+      console.log(`Existing user found: ${userId}, current ${quotaType}: ${userData[quotaType]}`);
+    }
+
+    const quotaValue = userData[quotaType];
+    // Kota kontrolü
+    if (quotaValue === undefined || quotaValue <= 0) {
+      console.log(`Quota exhausted for user ${userId}, ${quotaType}: ${quotaValue ?? 'undefined'}`);
+      throw new functions.https.HttpsError("resource-exhausted", `Bu işlem için hakkınız dolmuştur (${quotaType}).`);
+    }
+
+    // Kullanıcının kota hakkını düşür
+    await userRef.update({
+      [quotaType]: admin.firestore.FieldValue.increment(-1),
+    });
+    
+    console.log(`Quota updated successfully for user ${userId}, decremented ${quotaType}`);
+    
+  } catch (error: any) {
+    if (error.code === "resource-exhausted" || error.code === "permission-denied") {
+      throw error; // Kota veya izin hatalarını doğrudan geçir
+    }
+    
+    console.error(`Error in checkOrUpdateQuota for user ${userId}:`, error);
+    throw new functions.https.HttpsError("internal", "Kullanıcı kota kontrolünde hata oluştu.");
+  }
+}
