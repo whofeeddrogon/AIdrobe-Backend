@@ -38,6 +38,7 @@ export interface UserData {
   remainingClothAnalysis: number;
   createdAt: admin.firestore.Timestamp | Date;
   lastSyncedWithAdapty: admin.firestore.Timestamp | Date;
+  email?: string | null;
 }
 
 // Kota tiplerini güvenli bir şekilde yönetmek için

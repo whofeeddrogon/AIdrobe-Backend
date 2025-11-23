@@ -7,5 +7,5 @@
 export { analyzeClothingImage } from "./controllers/analyze";
 export { virtualTryOn } from "./controllers/tryon";
 export { getOutfitSuggestion } from "./controllers/suggestion";
-export { getUserTier, syncUserWithAdapty } from "./controllers/user";
+export { getUserInfo, syncUserWithAdapty, initializeUser } from "./controllers/user";
 export { adaptyWebhook } from "./controllers/webhook";
