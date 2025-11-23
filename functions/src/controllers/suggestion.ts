@@ -12,10 +12,15 @@ export const getOutfitSuggestion = functions
     .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
       
       const data: SuggestionRequestData = payload.data || payload;
-      const { adapty_user_id, user_request, clothing_items, user_information } = data;
+      const { adapty_user_id, user_request, clothing_items, user_information, mode } = data;
 
-      if (!adapty_user_id || !user_request || !Array.isArray(clothing_items)) {
-        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (adapty_user_id, user_request, clothing_items).");
+      // user_request zorunluluğunu kaldırdık çünkü mode varsa user_request boş gelebilir
+      if (!adapty_user_id || !Array.isArray(clothing_items)) {
+        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (adapty_user_id, clothing_items).");
+      }
+
+      if (!user_request && !mode) {
+         throw new functions.https.HttpsError("invalid-argument", "Lütfen bir istek yazın veya bir mod seçin.");
       }
 
       if (clothing_items.length < 10) {
@@ -23,9 +28,37 @@ export const getOutfitSuggestion = functions
       }
 
       try {
-        console.log(`Outfit suggestion başlatılıyor - User: ${adapty_user_id}, Items: ${clothing_items.length}`);
+        console.log(`Outfit suggestion başlatılıyor - User: ${adapty_user_id}, Items: ${clothing_items.length}, Mode: ${mode}`);
         
         await checkOrUpdateQuota(adapty_user_id, "remainingSuggestions");
+
+        // --- PREBUILT PROMPTS LOGIC ---
+        let enhancedRequest = user_request || "";
+
+        if (mode === "school") {
+            console.log("Mode: School detected. Using prebuilt prompt.");
+            enhancedRequest = `
+            **SPECIFIC CONTEXT: SCHOOL / UNIVERSITY**
+            Create a comfortable, stylish, and appropriate outfit for a school or university setting. 
+            - Focus on casual or smart-casual pieces that are good for sitting in classes and walking around campus. 
+            - Prioritize comfort and self-expression while maintaining a neat appearance.
+            - Avoid overly formal wear unless specified.
+            - Sneakers, jeans, hoodies, t-shirts, and comfortable layers are often good choices.`;
+        } 
+        else if (mode === "office") {
+            console.log("Mode: Office detected. Using prebuilt prompt.");
+            enhancedRequest = `
+            **SPECIFIC CONTEXT: OFFICE / WORK**
+            Create a professional, polished, and office-appropriate outfit. 
+            - Focus on smart-casual or business formal pieces suitable for a workplace environment. 
+            - Prioritize a clean, put-together look that commands respect while remaining comfortable for a workday.
+            - Avoid overly casual items like distressed jeans or gym wear unless styled very smartly.
+            - Blazers, shirts, trousers, skirts, and smart shoes are often good choices.`;
+        }
+        // Eğer mode yoksa ve user_request varsa, eski logic (keyword check) opsiyonel olarak kalabilir veya kaldırılabilir.
+        // Kullanıcı "mode gelmezse normal gelen stringi yapıştırıcan" dediği için keyword check'i kaldırıyorum.
+        // Sadece user_request kullanılır.
+
 
         const clothingJsonArray = JSON.stringify(clothing_items, null, 2);
         
@@ -46,7 +79,7 @@ export const getOutfitSuggestion = functions
         const finalPrompt = `You are an expert fashion stylist. Your task is to create an outfit combination from a provided list of clothes based on a user's request.
 
 **USER REQUEST:**
-"${user_request}"
+"${enhancedRequest}"
 ${userInfoSection}
 **AVAILABLE CLOTHES (WARDROBE):**
 ${clothingJsonArray}

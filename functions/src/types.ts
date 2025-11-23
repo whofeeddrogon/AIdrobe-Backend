@@ -80,6 +80,7 @@ export interface SuggestionRequestData {
   user_request: string;
   clothing_items: SuggestionRequestItem[];
   user_information?: UserInformation;
+  mode?: "school" | "office" | "standard";
 }
 
 export interface GetUserTierRequestData {
