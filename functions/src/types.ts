@@ -67,20 +67,10 @@ export interface SuggestionRequestItem {
   description: string;
 }
 
-// user_information tipi (isteğe bağlı alanlarla)
-export interface UserInformation {
-  gender?: string;
-  height?: string | number;
-  weight?: string | number;
-  age?: string | number;
-}
-
 export interface SuggestionRequestData {
   adapty_user_id: string;
   user_request: string;
   clothing_items: SuggestionRequestItem[];
-  user_information?: UserInformation;
-  mode?: "school" | "office" | "standard";
 }
 
 export interface GetUserTierRequestData {
