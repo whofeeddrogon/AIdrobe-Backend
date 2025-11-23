@@ -69,7 +69,8 @@ export interface SuggestionRequestItem {
 export interface SuggestionRequestData {
   adapty_user_id: string;
   user_request: string;
-  clothing_items: SuggestionRequestItem[];
+  temperature?: number;
+  useRandomModel?: boolean;
 }
 
 export interface GetUserTierRequestData {
