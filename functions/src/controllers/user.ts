@@ -111,7 +111,7 @@ export const syncUserWithAdapty = functions
 export const initializeUser = functions
     .runWith({secrets: [adaptySecretKey]})
     .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
-      const { uid, email } = payload.data || payload;
+      const { uid } = payload.data || payload;
 
       if (!uid) {
         throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (uid).");
@@ -148,7 +148,6 @@ export const initializeUser = functions
           remainingClothAnalysis: quotas.remainingClothAnalysis,
           createdAt: userDoc.exists ? (userDoc.data()?.createdAt || new Date()) : new Date(),
           lastSyncedWithAdapty: new Date(),
-          email: email || (userDoc.exists ? userDoc.data()?.email : null)
         };
 
         await userRef.set(userData, { merge: true });
