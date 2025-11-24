@@ -52,15 +52,25 @@ export const virtualTryOn = functions
 
                             **FINAL OUTPUT QUALITY:** The final image must be high-fidelity and appear as an imperceptible, photorealistic edit.`;
 
-        if (model_type === "nano-banana-pro" || clothingImages.length > 3) {
+        // Model seçimi ve mantığı
+        // 1. Nano Banana Pro: 3+ kıyafet VEYA model_type='nano-banana-pro'
+        // 2. Nano Banana: 2 kıyafet
+        // 3. Legacy: 1 kıyafet
+
+        // Ortak resim listesi hazırlığı (Pose + Kıyafetler) - Nano Banana modelleri için
+        const allImages = [
+            `data:image/jpeg;base64,${pose_image_base_64}`,
+            ...clothingImages.map(img => `data:image/jpeg;base64,${img}`)
+        ];
+
+        if (model_type === "nano-banana-pro" || clothingImages.length >= 3) {
             console.log("FAL AI Nano Banana Pro API'sine istek gönderiliyor...");
             
             const response = await axios.post(
-                "https://fal.run/fal-ai/nano-banana-pro",
+                "https://fal.run/fal-ai/nano-banana-pro/edit",
                 {
                     prompt: proPrompt,
-                    image_url: `data:image/jpeg;base64,${pose_image_base_64}`,
-                    clothing_images: clothingImages.map(img => `data:image/jpeg;base64,${img}`),
+                    image_urls: allImages,
                 },
                 {
                     headers: {
@@ -71,17 +81,17 @@ export const virtualTryOn = functions
             );
             
             console.log("FAL AI Nano Banana Pro response alındı:", response.status);
-            resultImageUrl = response.data?.images?.[0]?.url;
+            // /edit endpoint'i genellikle 'image' objesi döner, standart endpointler 'images' array döner. Her ikisini de kontrol edelim.
+            resultImageUrl = response.data?.image?.url || response.data?.images?.[0]?.url;
 
-        } else if (clothingImages.length === 2 || clothingImages.length === 3) {
-            console.log("FAL AI Nano Banana API'sine istek gönderiliyor (Pro Prompt ile)...");
+        } else if (clothingImages.length === 2) {
+            console.log("FAL AI Nano Banana API'sine istek gönderiliyor...");
 
             const response = await axios.post(
-                "https://fal.run/fal-ai/nano-banana",
+                "https://fal.run/fal-ai/nano-banana/edit",
                 {
                     prompt: proPrompt,
-                    image_url: `data:image/jpeg;base64,${pose_image_base_64}`,
-                    clothing_images: clothingImages.map(img => `data:image/jpeg;base64,${img}`),
+                    image_urls: allImages,
                 },
                 {
                     headers: {
@@ -92,7 +102,7 @@ export const virtualTryOn = functions
             );
             
             console.log("FAL AI Nano Banana response alındı:", response.status);
-            resultImageUrl = response.data?.images?.[0]?.url;
+            resultImageUrl = response.data?.image?.url || response.data?.images?.[0]?.url;
 
         } else {
             // Varsayılan (Mevcut) Model - Tek kıyafet
