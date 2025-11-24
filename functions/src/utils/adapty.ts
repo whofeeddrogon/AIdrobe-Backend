@@ -90,8 +90,8 @@ export function calculateQuotaFromAdapty(adaptyProfile: AdaptyProfileData): Quot
     console.log("User has no active subscriptions - freemium tier");
     return {
       tier: "freemium",
-      remainingTryOns: 20,
-      remainingSuggestions: 20,
+      remainingTryOns: 3,
+      remainingSuggestions: 30,
       remainingClothAnalysis: 20,
     };
   }
@@ -99,8 +99,8 @@ export function calculateQuotaFromAdapty(adaptyProfile: AdaptyProfileData): Quot
   // Premium kullanıcı - varsayılan
   let tier: "premium" | "ultra_premium" = "premium";
   let quotas = {
-    remainingTryOns: 100,
-    remainingSuggestions: 100,
+    remainingTryOns: 50,
+    remainingSuggestions: 200,
     remainingClothAnalysis: 100,
   };
 
@@ -114,9 +114,9 @@ export function calculateQuotaFromAdapty(adaptyProfile: AdaptyProfileData): Quot
     if (productId.includes("ultra") || productId.includes("unlimited") || productId.includes("pro")) {
       tier = "ultra_premium";
       quotas = {
-        remainingTryOns: 500,
-        remainingSuggestions: 500,
-        remainingClothAnalysis: 500,
+        remainingTryOns: 100,
+        remainingSuggestions: 300,
+        remainingClothAnalysis: 300,
       };
       console.log(`Ultra premium tier detected from product: ${productId}`);
       break;

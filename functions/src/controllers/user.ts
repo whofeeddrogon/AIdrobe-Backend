@@ -131,8 +131,8 @@ export const initializeUser = functions
            console.log("Adapty profili bulunamadı, Freemium varsayılıyor.");
            quotas = {
              tier: "freemium",
-             remainingTryOns: 20,
-             remainingSuggestions: 20,
+             remainingTryOns: 3,
+             remainingSuggestions: 30,
              remainingClothAnalysis: 20,
            };
         }
