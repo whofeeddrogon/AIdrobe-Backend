@@ -37,10 +37,13 @@ export async function createNewUser(userId: string): Promise<UserData> {
 
 /**
  * Kullanıcının belirli bir eylem için kotasını kontrol eder ve günceller.
+ * @param userId Kullanıcı ID
+ * @param quotaType Kota tipi (remainingTryOns, remainingOutfitAnalysis, remainingOutfitSuggestions)
+ * @param amount Düşülecek miktar (varsayılan: 1)
  */
-export async function checkOrUpdateQuota(userId: string, quotaType: QuotaType): Promise<void> {
+export async function checkOrUpdateQuota(userId: string, quotaType: QuotaType, amount: number = 1): Promise<void> {
   try {
-    console.log(`Checking quota for user: ${userId}, quotaType: ${quotaType}`);
+    console.log(`Checking quota for user: ${userId}, quotaType: ${quotaType}, amount: ${amount}`);
     
     const userRef = db.collection("users").doc(userId);
     const userDoc = await userRef.get();
@@ -58,17 +61,17 @@ export async function checkOrUpdateQuota(userId: string, quotaType: QuotaType): 
 
     const quotaValue = userData[quotaType];
     // Kota kontrolü
-    if (quotaValue === undefined || quotaValue <= 0) {
-      console.log(`Quota exhausted for user ${userId}, ${quotaType}: ${quotaValue ?? 'undefined'}`);
-      throw new functions.https.HttpsError("resource-exhausted", `Bu işlem için hakkınız dolmuştur (${quotaType}).`);
+    if (quotaValue === undefined || quotaValue < amount) {
+      console.log(`Quota exhausted for user ${userId}, ${quotaType}: ${quotaValue ?? 'undefined'}, required: ${amount}`);
+      throw new functions.https.HttpsError("resource-exhausted", `Bu işlem için yeterli hakkınız yok. Gerekli: ${amount}, Mevcut: ${quotaValue ?? 0}`);
     }
 
     // Kullanıcının kota hakkını düşür
     await userRef.update({
-      [quotaType]: admin.firestore.FieldValue.increment(-1),
+      [quotaType]: admin.firestore.FieldValue.increment(-amount),
     });
     
-    console.log(`Quota updated successfully for user ${userId}, decremented ${quotaType}`);
+    console.log(`Quota updated successfully for user ${userId}, decremented ${quotaType} by ${amount}`);
     
   } catch (error: any) {
     if (error.code === "resource-exhausted" || error.code === "permission-denied") {

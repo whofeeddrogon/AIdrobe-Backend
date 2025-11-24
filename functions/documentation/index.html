@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chosen Palette: Warm & Inviting -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive dashboard with a sticky top navigation to allow non-linear exploration of AIdrobe's business model. This structure was chosen because the source report contains distinct, data-rich sections (Tiers, Profitability, Ad-Hoc sales) that a business-focused user would want to access directly. The core of the application is an interactive "Profitability Deep Dive" section where users can toggle between subscription tiers and usage scenarios. This interactivity transforms the static tables in the report into an engaging, explorable experience, allowing users to dynamically see how revenue, costs, and profit change. This dashboard approach is superior to a simple scrollable infographic for this type of data, as it encourages exploration and provides a clearer understanding of the model's financial resilience. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Subscription Tiers Table -> Goal: Organize -> Viz/Presentation Method: Styled HTML Table -> Interaction: None -> Justification: Clearest way to present structured, comparative feature data. Method: HTML/Tailwind. NO SVG/Mermaid.
+        - Report Info: Freemium Economics -> Goal: Inform/Compare -> Viz/Presentation Method: Bar Chart -> Interaction: Static -> Justification: A bar chart provides an instant, powerful visual comparison between Ad Revenue and API Costs, proving the freemium tier's profitability. Method: Chart.js/Canvas. NO SVG/Mermaid.
+        - Report Info: Subscription Profitability Analysis -> Goal: Compare/Relationships -> Viz/Presentation Method: Dynamic Bar Chart & Text Blocks -> Interaction: User can toggle between 'Premium'/'Ultra Premium' tiers, '50%'/'100%' usage, and 'Monthly'/'Annual' plans. -> Justification: This is the core interactive element. Dynamically updating the chart and key metrics based on user selection makes the complex profitability data explorable and easy to digest. It clearly demonstrates the model's robustness in different scenarios. Method: Chart.js/Canvas + Vanilla JS. NO SVG/Mermaid.
+        - Report Info: A La Carte Packs -> Goal: Organize/Inform -> Viz/Presentation Method: Styled HTML Table & Bar Chart -> Interaction: None -> Justification: A detailed table displays all packs, while a bar chart visually emphasizes the extremely high profit margins, reinforcing the upsell strategy and revenue potential. Method: HTML/Tailwind & Chart.js/Canvas. NO SVG/Mermaid.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <title>AIdrobe - İnteraktif İş Modeli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display-swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'background': '#F7F3E9',
+                        'surface': '#FFFFFF',
+                        'primary-text': '#4A4A4A',
+                        'secondary-text': '#7A7A7A',
+                        'accent-light': '#E8E3D5',
+                        'accent-dark': '#D2C4A8',
+                        'profit-green': '#22c55e',
+                        'cost-red': '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link.active {
+            color: #4A4A4A;
+            font-weight: 700;
+            border-bottom-color: #D2C4A8;
+        }
+    </style>
+</head>
+<body class="bg-background text-primary-text">
+
+    <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <header class="text-center py-16 md:py-24">
+            <h1 class="text-5xl md:text-6xl font-black text-primary-text">AIdrobe</h1>
+            <h2 class="text-2xl md:text-3xl font-bold text-secondary-text mt-2">İnteraktif İş Modeli</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-secondary-text">
+                Bu interaktif sayfa, AIdrobe'un para kazanma stratejisini detaylı bir şekilde sunmaktadır. Burada, sürdürülebilir büyüme için tasarladığımız sağlam ve çok katmanlı finansal modelimizin görselleştirilmiş bir analizini bulacaksınız.
+            </p>
+        </header>
+
+        <nav id="nav" class="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-accent-light mb-16">
+            <div class="flex justify-center items-center space-x-6 sm:space-x-10 text-secondary-text font-semibold">
+                <a href="#personas" class="nav-link py-4 border-b-4 border-transparent transition-colors duration-300 hover:text-primary-text">Kullanıcı Profilleri</a>
+                <a href="#tiers" class="nav-link py-4 border-b-4 border-transparent transition-colors duration-300 hover:text-primary-text">Abonelik Katmanları</a>
+                <a href="#profitability" class="nav-link py-4 border-b-4 border-transparent transition-colors duration-300 hover:text-primary-text">Kârlılık Analizi</a>
+                <a href="#revenue" class="nav-link py-4 border-b-4 border-transparent transition-colors duration-300 hover:text-primary-text">Gelir Kanalları</a>
+            </div>
+        </nav>
+
+        <main class="space-y-20 md:space-y-24">
+            
+            <section id="personas" class="scroll-mt-24">
+                <div class="text-center mb-12">
+                    <h3 class="text-4xl font-extrabold">Hedef Kullanıcı Profilleri</h3>
+                    <p class="mt-3 text-lg text-secondary-text max-w-3xl mx-auto">Modelimiz, her segmente net bir değer önerisi sunarak üç temel kullanıcı profili etrafında şekillenmiştir.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-surface p-8 rounded-2xl shadow-lg border border-gray-100 text-center">
+                        <div class="text-6xl mb-4">🗓️</div>
+                        <h4 class="text-2xl font-bold text-primary-text">"Planlayıcı"</h4>
+                        <p class="mt-2 text-secondary-text h-24">Gardırobunu dijital olarak düzenlemeyi seven, "Sanal Deneme" özelliğini nadiren kullanan kullanıcı. İdeal olarak <strong class="text-primary-text">Freemium</strong> katmanını kullanır.</p>
+                    </div>
+                    <div class="bg-surface p-8 rounded-2xl shadow-lg border border-gray-100 text-center">
+                        <div class="text-6xl mb-4">🖼️</div>
+                        <h4 class="text-2xl font-bold text-primary-text">"Görselleştirici"</h4>
+                        <p class="mt-2 text-secondary-text h-24">Bir kombinin üzerinde nasıl duracağını görmeden emin olamayan ve reklamsız bir deneyim isteyen kullanıcı. İdeal olarak <strong class="text-primary-text">Premium</strong> abonesidir.</p>
+                    </div>
+                    <div class="bg-surface p-8 rounded-2xl shadow-lg border border-gray-100 text-center">
+                        <div class="text-6xl mb-4">💎</div>
+                        <h4 class="text-2xl font-bold text-primary-text">"Stil Tutkunu"</h4>
+                        <p class="mt-2 text-secondary-text h-24">Geniş bir gardıroba sahip, sınırsız erişim ve özel otomasyon özellikleri isteyen "güçlü kullanıcı". İdeal olarak <strong class="text-primary-text">Ultra Premium</strong> abonesidir.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tiers" class="scroll-mt-24">
+                <div class="text-center mb-12">
+                    <h3 class="text-4xl font-extrabold">Abonelik Katmanları ve İndirimler</h3>
+                    <p class="mt-3 text-lg text-secondary-text max-w-3xl mx-auto">Her kullanıcı profiline hitap eden esnek ve değerli abonelik paketleri.</p>
+                </div>
+                <div class="bg-surface p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100 overflow-x-auto mb-12">
+                    <table class="w-full text-left min-w-[800px]">
+                        <thead class="border-b-2 border-accent-light">
+                            <tr>
+                                <th class="p-4 font-bold text-xl w-1/4">Özellik</th>
+                                <th class="p-4 font-bold text-center text-lg">Freemium</th>
+                                <th class="p-4 font-bold text-center text-lg bg-accent-light/50 rounded-t-lg">Premium</th>
+                                <th class="p-4 font-bold text-center text-lg">Ultra Premium</th>
+                            </tr>
+                        </thead>
+                        <tbody id="features-table-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-surface p-6 rounded-2xl shadow-lg border border-gray-100">
+                        <h4 class="text-2xl font-bold text-primary-text">Premium Planları</h4>
+                        <div class="space-y-4 mt-4">
+                             <div class="border border-gray-200 rounded-lg p-4">
+                                <p class="font-bold">Aylık</p>
+                                <p class="text-2xl font-extrabold">$9.99 <span class="text-sm font-medium text-secondary-text">/ ay</span></p>
+                            </div>
+                             <div class="border border-gray-200 rounded-lg p-4">
+                                <p class="font-bold">Yıllık <span class="text-xs font-semibold bg-profit-green/20 text-profit-green px-2 py-1 rounded-full ml-2">%33 Tasarruf</span></p>
+                                <p class="text-2xl font-extrabold">$79.99 <span class="text-sm font-medium text-secondary-text">/ yıl (Aylık ~$6.67)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-surface p-6 rounded-2xl shadow-lg border border-gray-100">
+                        <h4 class="text-2xl font-bold text-primary-text">Ultra Premium Planları</h4>
+                         <div class="space-y-4 mt-4">
+                             <div class="border border-gray-200 rounded-lg p-4">
+                                <p class="font-bold">Aylık</p>
+                                <p class="text-2xl font-extrabold">$19.99 <span class="text-sm font-medium text-secondary-text">/ ay</span></p>
+                            </div>
+                             <div class="border border-gray-200 rounded-lg p-4 relative">
+                                <div class="absolute top-2 right-2 text-xs font-semibold bg-accent-dark/80 text-white px-3 py-1 rounded-full">En Popüler</div>
+                                <p class="font-bold">Yıllık <span class="text-xs font-semibold bg-profit-green/20 text-profit-green px-2 py-1 rounded-full ml-2">%33 Tasarruf</span></p>
+                                <p class="text-2xl font-extrabold">$159.99 <span class="text-sm font-medium text-secondary-text">/ yıl (Aylık ~$13.33)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="profitability" class="scroll-mt-24">
+                <div class="text-center mb-12">
+                    <h3 class="text-4xl font-extrabold">Kârlılık Analizi</h3>
+                    <p class="mt-3 text-lg text-secondary-text max-w-3xl mx-auto">İş modelimizin finansal dayanıklılığını interaktif olarak keşfedin. Gelir, maliyet ve net kâr dökümünü görmek için bir plan, katman ve kullanım senaryosu seçin.</p>
+                </div>
+
+                <div class="bg-surface p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100">
+                    <div class="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-6 mb-8">
+                        <div class="flex bg-accent-light p-1 rounded-full">
+                            <button id="btn-monthly" class="plan-btn w-28 py-2 rounded-full text-sm font-semibold">Aylık</button>
+                            <button id="btn-annual" class="plan-btn w-28 py-2 rounded-full text-sm font-semibold">Yıllık</button>
+                        </div>
+                        <div class="flex bg-accent-light p-1 rounded-full">
+                            <button id="btn-premium" class="tier-btn w-28 py-2 rounded-full text-sm font-semibold">Premium</button>
+                            <button id="btn-ultra" class="tier-btn w-28 py-2 rounded-full text-sm font-semibold">Ultra Premium</button>
+                        </div>
+                        <div class="flex bg-accent-light p-1 rounded-full">
+                            <button id="btn-50" class="usage-btn w-40 py-2 rounded-full text-sm font-semibold">Ortalama Kullanıcı (%50)</button>
+                            <button id="btn-100" class="usage-btn w-40 py-2 rounded-full text-sm font-semibold">Güçlü Kullanıcı (%100)</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center my-8">
+                        <div>
+                            <p class="text-sm font-bold text-secondary-text uppercase tracking-wider">Net Gelir</p>
+                            <p id="metric-revenue" class="text-4xl font-black text-profit-green"></p>
+                        </div>
+                         <div>
+                            <p class="text-sm font-bold text-secondary-text uppercase tracking-wider">API Maliyeti</p>
+                            <p id="metric-cost" class="text-4xl font-black text-cost-red"></p>
+                        </div>
+                         <div>
+                            <p class="text-sm font-bold text-secondary-text uppercase tracking-wider">Net Kâr</p>
+                            <p id="metric-profit" class="text-4xl font-black text-profit-green"></p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="profitabilityChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="revenue" class="scroll-mt-24">
+                <div class="text-center mb-12">
+                    <h3 class="text-4xl font-extrabold">Çeşitlendirilmiş Gelir Kanalları</h3>
+                    <p class="mt-3 text-lg text-secondary-text max-w-3xl mx-auto">Aboneliklerin ötesinde AIdrobe, ücretsiz kullanıcı tabanından ve esnek tekil satın alımlardan önemli gelirler elde eder.</p>
+                </div>
+                <div class="bg-surface p-8 rounded-2xl shadow-lg border border-gray-100 mb-8">
+                    <h4 class="text-2xl font-bold mb-4">Freemium Kâr Motoru</h4>
+                    <p class="text-secondary-text mb-6">Yapay zeka işlem bekleme sürelerini reklamlarla paraya çevirerek (<a href="https://adapty.io/blog/mobile-interstitial-ads" target="_blank" class="text-blue-600 underline">Adapty'nin verilerine göre</a> iOS için ortalama $11 eCPM baz alınarak), ücretsiz katmanımız bir maliyet merkezi değil, kullanıcı başına <strong class="text-primary-text">$0.113 net kâr</strong> üreten kârlı bir müşteri edinme kanalıdır.</p>
+                </div>
+                <div class="bg-surface p-8 rounded-2xl shadow-lg border border-gray-100">
+                    <h4 class="text-2xl font-bold mb-4">'A La Carte' Paketler: Yüksek Kârlı Satışlar</h4>
+                    <p class="text-secondary-text mb-8">Ek kotaya ihtiyaç duyan ancak abone olmaya hazır olmayan kullanıcılar için yüksek kâr marjlı tek seferlik satın alımlar sunuyoruz. Bu paketler, aylık abonelikleri her zaman daha ekonomik bir seçenek haline getirecek şekilde stratejik olarak fiyatlandırılmıştır.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left min-w-[400px]">
+                                <thead class="border-b-2 border-accent-light">
+                                    <tr>
+                                        <th class="p-3 font-semibold">Paket</th>
+                                        <th class="p-3 font-semibold">Fiyat</th>
+                                        <th class="p-3 font-semibold text-cost-red">Maliyet</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="alacarte-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <div class="chart-container h-[300px] max-h-[300px]">
+                                <canvas id="alacarteChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <script>
+        const appData = {
+            features: [
+                { name: 'Fiyat', values: ['Ücretsiz', '$9,99 / ay', '$19,99 / ay'] },
+                { name: 'Gardırop Limiti', values: ['50 Kıyafet', '100 Kıyafet', 'Sınırsız'] },
+                { name: 'Reklamlar', values: ['Var', 'Yok', 'Yok'] },
+                { name: 'Arka Plan Temizleme', values: ['✅', '✅', '✅'] },
+                { name: 'Kıyafet Analizi', values: ['20 (Tek Seferlik)', '100 / ay', '300 / ay'] },
+                { name: 'Sanal Deneme (Try On)', values: ['3 (Tek Seferlik)', '50 / ay', '100 / ay'] },
+                { name: 'Kombin Önerisi', values: ['30 (Tek Seferlik)', '200 / ay', '300 / ay'] },
+                { name: 'Otomatik Günlük Öneri', values: ['❌', '❌', '✅'] },
+                { name: 'Özel Temalar', values: ['❌', '❌', '✅'] },
+            ],
+            profitability: {
+                premium: {
+                    monthly: { revenue: 8.50, cost_100: 3.80, cost_50: 1.90 },
+                    annual: { revenue: 67.99, cost_100: 45.60, cost_50: 22.80 }
+                },
+                ultra: {
+                    monthly: { revenue: 17.00, cost_100: 9.10, cost_50: 4.55 },
+                    annual: { revenue: 135.99, cost_100: 109.20, cost_50: 54.60 }
+                }
+            },
+            alacarte: [
+                { name: '10 Ek Kıyafet Analizi', price: 1.99, cost: 0.16 },
+                { name: '50 Ek Kıyafet Analizi', price: 4.99, cost: 0.80 },
+                { name: '10 Ek Sanal Deneme', price: 2.99, cost: 0.40 },
+                { name: '30 Ek Sanal Deneme', price: 5.99, cost: 1.20 },
+                { name: '50 Ek Kombin Önerisi', price: 1.99, cost: 0.05 },
+                { name: '100 Ek Kombin Önerisi', price: 2.99, cost: 0.10 },
+            ]
+        };
+
+        const state = {
+            selectedTier: 'premium',
+            usageScenario: '50',
+            selectedPlan: 'monthly'
+        };
+        
+        const formatCurrency = (value) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'USD' }).format(value);
+
+        const wrapLabel = (label) => {
+            if (typeof label !== 'string' || label.length <= 16) return label;
+            const words = label.split(' ');
+            let lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).trim().length > 16) {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine += ' ' + word;
+                }
+            });
+            lines.push(currentLine.trim());
+            return lines;
+        };
+        
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) return label.join(' ');
+            return label;
+        };
+
+        const featuresTableBody = document.getElementById('features-table-body');
+        appData.features.forEach(feature => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-accent-light/50';
+            row.innerHTML = `
+                <td class="p-4 font-semibold">${feature.name}</td>
+                <td class="p-4 text-center">${feature.values[0]}</td>
+                <td class="p-4 text-center font-semibold bg-accent-light/50">${feature.values[1]}</td>
+                <td class="p-4 text-center">${feature.values[2]}</td>
+            `;
+            featuresTableBody.appendChild(row);
+        });
+
+        const alacarteTableBody = document.getElementById('alacarte-table-body');
+        appData.alacarte.forEach(pack => {
+             const row = document.createElement('tr');
+            row.className = 'border-b border-accent-light/50';
+            row.innerHTML = `
+                <td class="p-3">${pack.name}</td>
+                <td class="p-3 font-bold">${formatCurrency(pack.price)}</td>
+                <td class="p-3 text-cost-red">${formatCurrency(pack.cost)}</td>
+            `;
+            alacarteTableBody.appendChild(row);
+        });
+        
+        const btnPremium = document.getElementById('btn-premium');
+        const btnUltra = document.getElementById('btn-ultra');
+        const btn50 = document.getElementById('btn-50');
+        const btn100 = document.getElementById('btn-100');
+        const btnMonthly = document.getElementById('btn-monthly');
+        const btnAnnual = document.getElementById('btn-annual');
+        
+        const metricRevenue = document.getElementById('metric-revenue');
+        const metricCost = document.getElementById('metric-cost');
+        const metricProfit = document.getElementById('metric-profit');
+
+        const profitabilityChartCtx = document.getElementById('profitabilityChart').getContext('2d');
+        const profitabilityChart = new Chart(profitabilityChartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Net Gelir', 'API Maliyeti', 'Net Kâr'],
+                datasets: [{
+                    label: 'Tutar', data: [], backgroundColor: ['#22c55e', '#ef4444', '#22c55e'], borderRadius: 8, barPercentage: 0.6,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { title: tooltipTitleCallback }, backgroundColor: '#0f172a', padding: 12, cornerRadius: 8 } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { callback: value => formatCurrency(value), font: { family: 'Inter' } }, grid: { color: '#f1f5f9' } },
+                    x: { ticks: { font: { family: 'Inter', size: 14 } }, grid: { display: false } }
+                }
+            }
+        });
+
+        const alacarteChartCtx = document.getElementById('alacarteChart').getContext('2d');
+        const alacarteChart = new Chart(alacarteChartCtx, {
+            type: 'bar',
+            data: {
+                labels: appData.alacarte.map(p => wrapLabel(p.name)),
+                datasets: [{
+                    label: 'Kâr Marjı (%)',
+                    data: appData.alacarte.map(p => ((p.price - p.cost) / p.price * 100)),
+                    backgroundColor: '#D2C4A8',
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { 
+                    title: tooltipTitleCallback,
+                    label: (context) => `%${context.parsed.x.toFixed(0)} Kâr Marjı`
+                }, backgroundColor: '#0f172a', padding: 12, cornerRadius: 8 } },
+                scales: {
+                    x: { beginAtZero: true, max: 100, ticks: { callback: value => `%${value}`, font: { family: 'Inter' } }, grid: { color: '#f1f5f9' } },
+                    y: { ticks: { font: { family: 'Inter', size: 12 } }, grid: { display: false } }
+                }
+            }
+        });
+
+        function updateDashboard() {
+            const planData = appData.profitability[state.selectedTier][state.selectedPlan];
+            const cost = state.usageScenario === '100' ? planData.cost_100 : planData.cost_50;
+            const revenue = planData.revenue;
+            const profit = revenue - cost;
+
+            metricRevenue.textContent = formatCurrency(revenue);
+            metricCost.textContent = formatCurrency(cost);
+            metricProfit.textContent = formatCurrency(profit);
+            
+            profitabilityChart.data.datasets[0].data = [revenue, cost, profit];
+            profitabilityChart.update();
+
+            document.querySelectorAll('.tier-btn, .usage-btn, .plan-btn').forEach(btn => btn.classList.remove('bg-surface', 'shadow', 'text-primary-text'));
+            
+            const activeTierBtn = document.getElementById(`btn-${state.selectedTier}`);
+            const activeUsageBtn = document.getElementById(`btn-${state.usageScenario}`);
+            const activePlanBtn = document.getElementById(`btn-${state.selectedPlan}`);
+            
+            if(activeTierBtn) activeTierBtn.classList.add('bg-surface', 'shadow', 'text-primary-text');
+            if(activeUsageBtn) activeUsageBtn.classList.add('bg-surface', 'shadow', 'text-primary-text');
+            if(activePlanBtn) activePlanBtn.classList.add('bg-surface', 'shadow', 'text-primary-text');
+        }
+
+        btnPremium.addEventListener('click', () => { state.selectedTier = 'premium'; updateDashboard(); });
+        btnUltra.addEventListener('click', () => { state.selectedTier = 'ultra'; updateDashboard(); });
+        btn50.addEventListener('click', () => { state.usageScenario = '50'; updateDashboard(); });
+        btn100.addEventListener('click', () => { state.usageScenario = '100'; updateDashboard(); });
+        btnMonthly.addEventListener('click', () => { state.selectedPlan = 'monthly'; updateDashboard(); });
+        btnAnnual.addEventListener('click', () => { state.selectedPlan = 'annual'; updateDashboard(); });
+
+
+        document.addEventListener('DOMContentLoaded', updateDashboard);
+
+        const nav = document.getElementById('nav');
+        const navLinks = nav.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('main section');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href').substring(1) === entry.target.id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: '-50% 0px -50% 0px' });
+
+        sections.forEach(section => observer.observe(section));
+
+    </script>
+</body>
+</html>
+

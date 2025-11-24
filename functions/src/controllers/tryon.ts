@@ -24,7 +24,11 @@ export const virtualTryOn = functions
       try {
         console.log(`Virtual try-on başlatılıyor - User: ${adapty_user_id}`);
         
-        await checkOrUpdateQuota(adapty_user_id, "remainingTryOns");
+        // Maliyet hesaplama: Her kıyafet için 1 token
+        const cost = clothingImages.length;
+        console.log(`Try-on cost calculated: ${cost} tokens for ${clothingImages.length} items.`);
+
+        await checkOrUpdateQuota(adapty_user_id, "remainingTryOns", cost);
 
         const apiKey = falKey.value();
         let resultImageUrl: string | undefined;
