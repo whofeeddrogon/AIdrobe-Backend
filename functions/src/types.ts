@@ -48,12 +48,12 @@ export type QuotaData = Omit<UserData, "createdAt" | "lastSyncedWithAdapty">;
 
 // Swift'ten gelmesini beklediğimiz veri yapıları
 export interface AnalyzeRequestData {
-  adapty_user_id: string;
+  uuid: string;
   image_base_64: string;
 }
 
 export interface TryOnRequestData {
-  adapty_user_id: string;
+  uuid: string;
   pose_image_base_64: string;
   clothing_images_base_64: string[]; // Artık tek ve zorunlu yöntem
   model_type?: "standard" | "nano-banana-pro"; // Model seçimi
@@ -66,16 +66,16 @@ export interface SuggestionRequestItem {
 }
 
 export interface SuggestionRequestData {
-  adapty_user_id: string;
+  uuid: string;
   user_request: string;
   temperature?: number;
   useRandomModel?: boolean;
 }
 
 export interface GetUserTierRequestData {
-  adapty_user_id: string;
+  uuid: string;
 }
 
 export interface SyncUserRequestData {
-  adapty_user_id: string;
+  uuid: string;
 }

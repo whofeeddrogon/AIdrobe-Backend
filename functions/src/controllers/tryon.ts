@@ -12,23 +12,23 @@ export const virtualTryOn = functions
     .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
       
       const data: TryOnRequestData = payload.data || payload;
-      const { adapty_user_id, pose_image_base_64, clothing_images_base_64, model_type } = data;
+      const { uuid, pose_image_base_64, clothing_images_base_64, model_type } = data;
 
       // Artık sadece array kabul ediyoruz
       const clothingImages = clothing_images_base_64 || [];
 
-      if (!adapty_user_id || !pose_image_base_64 || !Array.isArray(clothingImages) || clothingImages.length === 0) {
-        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (adapty_user_id, pose_image_base_64, clothing_images_base_64).");
+      if (!uuid || !pose_image_base_64 || !Array.isArray(clothingImages) || clothingImages.length === 0) {
+        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (uuid, pose_image_base_64, clothing_images_base_64).");
       }
 
       try {
-        console.log(`Virtual try-on başlatılıyor - User: ${adapty_user_id}`);
+        console.log(`Virtual try-on başlatılıyor - User: ${uuid}`);
         
         // Maliyet hesaplama: Her kıyafet için 1 token
         const cost = clothingImages.length;
         console.log(`Try-on cost calculated: ${cost} tokens for ${clothingImages.length} items.`);
 
-        await checkOrUpdateQuota(adapty_user_id, "remainingTryOns", cost);
+        const newQuota = await checkOrUpdateQuota(uuid, "remainingTryOns", cost);
 
         const apiKey = falKey.value();
         let resultImageUrl: string | undefined;
@@ -136,12 +136,12 @@ export const virtualTryOn = functions
             throw new functions.https.HttpsError("internal", "Sanal deneme sonucu oluşturulamadı. Lütfen tekrar deneyin.");
         }
 
-        console.log(`Virtual try-on başarıyla tamamlandı - User: ${adapty_user_id}`);
-        return { result_image_url: resultImageUrl };
+        console.log(`Virtual try-on başarıyla tamamlandı - User: ${uuid}`);
+        return { result_image_url: resultImageUrl, newQuota };
 
     } catch (error: any) {
       if (error.code === "resource-exhausted" || error.code === "permission-denied") {
-          console.log(`Quota exhausted for user ${adapty_user_id} - Virtual Try-On`);
+          console.log(`Quota exhausted for user ${uuid} - Virtual Try-On`);
           throw error;
       }
       

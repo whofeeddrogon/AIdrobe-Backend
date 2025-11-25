@@ -12,14 +12,14 @@ export const analyzeClothingImage = functions
     .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
       
       const data: AnalyzeRequestData = payload.data || payload; 
-      const { adapty_user_id, image_base_64 } = data;
+      const { uuid, image_base_64 } = data;
 
-      if (!adapty_user_id || !image_base_64) {
-        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (adapty_user_id, image_base_64).");
+      if (!uuid || !image_base_64) {
+        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (uuid, image_base_64).");
       }
 
       try {
-        await checkOrUpdateQuota(adapty_user_id, "remainingClothAnalysis");
+        const newQuota = await checkOrUpdateQuota(uuid, "remainingClothAnalysis");
 
         const categoryList = [
           "T-Shirt", "Shirt", "Sweater", "Sweatshirt / Hoodie", "Blouse",
@@ -32,24 +32,27 @@ export const analyzeClothingImage = functions
 
         const prompt = `
           Analyze the main clothing item in this image. Your response MUST be a valid JSON object.
-          The JSON object should have two keys: "category" and "description".
+          The JSON object should have three keys: "category", "description", and "name".
 
           Instructions for the model:
           1.  For the "category" value, you MUST choose the most appropriate category ONLY from this list: [${categoryList}].
           2.  For the "description" value, provide a single, comprehensive paragraph in English. This paragraph must describe the item's physical details (material, fit, color, patterns) AND its context (formality level, suitable occasions, and appropriate weather conditions).
-          3.  CRITICAL RULE: Your description must ONLY be about the garment. DO NOT mention the background, the surface it is on, or how it is positioned (e.g., "laid flat", "on a hanger"). Focus strictly on the item's own features.
-          4.  IMPORTANT: When describing text printed on the clothing, DO NOT use quotation marks (""). Instead, write the text directly without quotes. For example, if a shirt says "JUST DO IT", write: The shirt displays the text JUST DO IT in bold letters. WRONG: "The t-shirt has the phrase "GOOD VIBES ONLY" printed", CORRECT: "The t-shirt has the phrase GOOD VIBES ONLY printed"
+          3.  For the "name" value, provide a short, concise title for the item (e.g., "Red Cotton T-Shirt", "Blue Denim Jeans", "Floral Summer Dress"). It should be 2-3 words long. DO NOT use quotation marks ("") within the name.
+          4.  CRITICAL RULE: Your description must ONLY be about the garment. DO NOT mention the background, the surface it is on, or how it is positioned (e.g., "laid flat", "on a hanger"). Focus strictly on the item's own features.
+          5.  IMPORTANT: When describing text printed on the clothing, DO NOT use quotation marks (""). Instead, write the text directly without quotes. For example, if a shirt says "JUST DO IT", write: The shirt displays the text JUST DO IT in bold letters. WRONG: "The t-shirt has the phrase "GOOD VIBES ONLY" printed", CORRECT: "The t-shirt has the phrase GOOD VIBES ONLY printed"
 
           Example JSON response:
           {
             "category": "Shirt",
-            "description": "A white, long-sleeved shirt made of a smooth, possibly cotton material. It features a classic collar, a button-down front, and a regular fit. This piece is suitable for casual or smart casual occasions in mild weather."
+            "description": "A white, long-sleeved shirt made of a smooth, possibly cotton material. It features a classic collar, a button-down front, and a regular fit. This piece is suitable for casual or smart casual occasions in mild weather.",
+            "name": "White Long-Sleeved Shirt"
           }
           
           Example with text on clothing:
           {
             "category": "T-Shirt",
-            "description": "A black cotton t-shirt with the text RIDE ME NUTS printed on the front in bold white letters. The shirt has a crew neck and short sleeves, suitable for casual wear in warm weather."
+            "description": "A black cotton t-shirt with the text RIDE ME NUTS printed on the front in bold white letters. The shirt has a crew neck and short sleeves, suitable for casual wear in warm weather.",
+            "name": "Black Graphic T-Shirt"
           }
         `;
         
@@ -93,19 +96,9 @@ export const analyzeClothingImage = functions
             }
             
             let jsonString = jsonMatch[0];
-            
-            // JSON içindeki description field'ındaki iç içe quote'ları temizle
-            jsonString = jsonString.replace(
-              /"description"\s*:\s*"([^"]*(?:"[^"]*"[^"]*)*)"/g,
-              (match, content: string) => {
-                // Description içindeki tüm iç quote'ları kaldır
-                const cleanContent = content.replace(/\\"/g, "").replace(/"/g, "");
-                return `"description": "${cleanContent}"`;
-              }
-            );
-            
             const parsedJson = JSON.parse(jsonString);
-            return { ...parsedJson, image_url: bgRemovedImageUrl };
+
+            return { ...parsedJson, image_url: bgRemovedImageUrl, newQuota };
         } catch (e: any) {
             console.error("LLM JSON parse hatası:", llmOutput, e);
             throw new functions.https.HttpsError("internal", "Yapay zekanın cevabı anlaşılamadı. Lütfen tekrar deneyin.");

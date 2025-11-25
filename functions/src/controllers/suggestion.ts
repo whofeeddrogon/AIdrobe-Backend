@@ -12,16 +12,16 @@ export const getOutfitSuggestion = functions
     .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
       
       const data: SuggestionRequestData = payload.data || payload;
-      const { adapty_user_id, user_request, temperature, useRandomModel } = data;
+      const { uuid, user_request, temperature, useRandomModel } = data;
 
-      if (!adapty_user_id || !user_request) {
-        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (adapty_user_id, user_request).");
+      if (!uuid || !user_request) {
+        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (uuid, user_request).");
       }
 
       try {
-        console.log(`Outfit suggestion başlatılıyor - User: ${adapty_user_id}`);
+        console.log(`Outfit suggestion başlatılıyor - User: ${uuid}`);
         
-        await checkOrUpdateQuota(adapty_user_id, "remainingSuggestions");
+        const newQuota = await checkOrUpdateQuota(uuid, "remainingSuggestions");
 
         // Model Seçimi
         const defaultModel = "google/gemini-2.5-flash";
@@ -72,8 +72,8 @@ export const getOutfitSuggestion = functions
           // Basit validasyon - artık recommendation içeriğini kontrol etmiyoruz çünkü prompt tamamen dışarıdan geliyor
           // Ancak yine de JSON dönmesini bekliyoruz
           
-          console.log(`Outfit suggestion başarıyla tamamlandı - User: ${adapty_user_id}`);
-          return parsedJson;
+          console.log(`Outfit suggestion başarıyla tamamlandı - User: ${uuid}`);
+          return { ...parsedJson, newQuota };
           
         } catch (e: any) {
           console.error("LLM JSON parse hatası:", llmOutput, e);
@@ -81,7 +81,7 @@ export const getOutfitSuggestion = functions
         }
       } catch (error: any) {
         if (error.code === "resource-exhausted" || error.code === "permission-denied") {
-            console.log(`Quota exhausted for user ${adapty_user_id} - Outfit Suggestion`);
+            console.log(`Quota exhausted for user ${uuid} - Outfit Suggestion`);
             throw error;
         }
         

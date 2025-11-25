@@ -40,8 +40,9 @@ export async function createNewUser(userId: string): Promise<UserData> {
  * @param userId Kullanıcı ID
  * @param quotaType Kota tipi (remainingTryOns, remainingOutfitAnalysis, remainingOutfitSuggestions)
  * @param amount Düşülecek miktar (varsayılan: 1)
+ * @returns Güncel kalan kota miktarı
  */
-export async function checkOrUpdateQuota(userId: string, quotaType: QuotaType, amount: number = 1): Promise<void> {
+export async function checkOrUpdateQuota(userId: string, quotaType: QuotaType, amount: number = 1): Promise<number> {
   try {
     console.log(`Checking quota for user: ${userId}, quotaType: ${quotaType}, amount: ${amount}`);
     
@@ -73,6 +74,8 @@ export async function checkOrUpdateQuota(userId: string, quotaType: QuotaType, a
     
     console.log(`Quota updated successfully for user ${userId}, decremented ${quotaType} by ${amount}`);
     
+    return quotaValue - amount;
+
   } catch (error: any) {
     if (error.code === "resource-exhausted" || error.code === "permission-denied") {
       throw error; // Kota veya izin hatalarını doğrudan geçir

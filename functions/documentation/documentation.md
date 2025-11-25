@@ -136,7 +136,7 @@ Tüm fonksiyonlar `https://us-central1-aidrobe-backend.cloudfunctions.net/<funct
 Kıyafet sayısına göre otomatik model seçimi yapar ve kullanılan kıyafet sayısı kadar kota düşer.
 
 * **Input (`data` objesi içinde):**
-  * `adapty_user_id` (string): Kullanıcı ID.
+  * `uuid` (string): Kullanıcı ID (Adapty ID veya Global UUID).
   * `pose_image_base_64` (string): Kullanıcının fotoğrafı (Base64, header yok).
   * `clothing_images_base_64` (string[]): Kıyafet fotoğrafları dizisi (Base64, header yok).
   * `model_type` (string, opsiyonel): `"nano-banana-pro"` gönderilirse, kıyafet sayısına bakılmaksızın Pro model kullanılır.
@@ -154,7 +154,7 @@ Kıyafet sayısına göre otomatik model seçimi yapar ve kullanılan kıyafet s
 Kullanıcıdan gelen serbest metni (prompt) yapay zekaya iletir.
 
 * **Input (`data` objesi içinde):**
-  * `adapty_user_id` (string): Kullanıcı ID.
+  * `uuid` (string): Kullanıcı ID (Adapty ID veya Global UUID).
   * `user_request` (string): Frontend tarafından oluşturulmuş tam prompt metni (Kullanıcı isteği + Gardırop JSON + Sistem talimatları).
   * `temperature` (number, opsiyonel): Yaratıcılık seviyesi (Default: 0.7).
   * `useRandomModel` (boolean, opsiyonel): `true` ise havuzdan rastgele bir model seçer.
@@ -171,14 +171,14 @@ Kullanıcıdan gelen serbest metni (prompt) yapay zekaya iletir.
 
 Uygulama açılışında veya login sonrası güvenli kullanıcı kaydı oluşturur.
 
-* **Input:** `{ "uid": "..." }`
+* **Input:** `{ "uuid": "..." }`
 * **İşlev:** Adapty'den kullanıcının abonelik durumunu kontrol eder. Eğer yoksa Freemium kotalarını tanımlar. Varsa ilgili paketin kotalarını tanımlar. `email` parametresi artık kullanılmamaktadır.
 
 ### **4.4. `syncUserWithAdapty` (Senkronizasyon)**
 
 Manuel "Restore Purchase" işlemi için kullanılır.
 
-* **Input:** `{ "adapty_user_id": "..." }`
+* **Input:** `{ "uuid": "..." }`
 * **İşlev:** Adapty'den güncel durumu çeker ve Firestore'daki kotaları günceller.
 
 ### **4.5. `adaptyWebhook` (Otomatik Güncelleme)**
