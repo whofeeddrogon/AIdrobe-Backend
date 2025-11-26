@@ -96,8 +96,8 @@ export function calculateQuotaFromAdapty(adaptyProfile: AdaptyProfileData): Quot
     };
   }
 
-  // Premium kullanıcı - varsayılan
-  let tier: "premium" | "ultra_premium" = "premium";
+  // Basic kullanıcı - varsayılan
+  let tier: "basic" | "pro" = "basic";
   let quotas = {
     remainingTryOns: 50,
     remainingSuggestions: 200,
@@ -107,18 +107,18 @@ export function calculateQuotaFromAdapty(adaptyProfile: AdaptyProfileData): Quot
   // Product ID'ye göre tier belirleme
   for (const sub of activeSubscriptions) {
     const productId = sub.store_product_id?.toLowerCase() || "";
-    
+
     console.log(`Checking subscription product: ${productId}`);
-    
-    // Ultra premium product ID'leri kontrol et
+
+    // Pro (eski ultra premium) product ID'leri kontrol et
     if (productId.includes("ultra") || productId.includes("unlimited") || productId.includes("pro")) {
-      tier = "ultra_premium";
+      tier = "pro";
       quotas = {
         remainingTryOns: 100,
         remainingSuggestions: 300,
         remainingClothAnalysis: 300,
       };
-      console.log(`Ultra premium tier detected from product: ${productId}`);
+      console.log(`Pro tier detected from product: ${productId}`);
       break;
     }
   }

@@ -1,6 +1,10 @@
 import * as admin from "firebase-admin";
 
-// Adapty'den gelen abonelik verisi
+// ============================================================================
+// ADAPTY TYPES
+// ============================================================================
+// Adapty abonelik yönetimi servisinden gelen veri yapıları
+
 export interface AdaptySubscription {
   is_active: boolean;
   is_in_grace_period?: boolean;
@@ -9,13 +13,11 @@ export interface AdaptySubscription {
   store_product_id?: string;
 }
 
-// Adapty'den gelen erişim seviyesi verisi
 export interface AdaptyAccessLevel {
   is_active: boolean;
   expires_at?: string | null;
 }
 
-// Adapty'den gelen ana profil verisi
 export interface AdaptyProfileData {
   profile_id: string;
   customer_user_id?: string;
@@ -23,16 +25,19 @@ export interface AdaptyProfileData {
   subscriptions?: Record<string, AdaptySubscription>;
 }
 
-// Adapty API cevabının tam yapısı
 export interface AdaptyProfileResponse {
   data: {
     data: AdaptyProfileData;
   };
 }
 
-// Firestore'da sakladığımız kullanıcı verisinin yapısı
+// ============================================================================
+// USER & QUOTA TYPES
+// ============================================================================
+// Firestore'da saklanan kullanıcı verileri ve kota yönetimi
+
 export interface UserData {
-  tier: "freemium" | "premium" | "ultra_premium";
+  tier: "freemium" | "basic" | "pro";
   remainingTryOns: number;
   remainingSuggestions: number;
   remainingClothAnalysis: number;
@@ -40,13 +45,33 @@ export interface UserData {
   lastSyncedWithAdapty: admin.firestore.Timestamp | Date;
 }
 
-// Kota tiplerini güvenli bir şekilde yönetmek için
 export type QuotaType = "remainingTryOns" | "remainingSuggestions" | "remainingClothAnalysis";
 
-// Firestore'a yazılacak kota verisi tipi
 export type QuotaData = Omit<UserData, "createdAt" | "lastSyncedWithAdapty">;
 
-// Swift'ten gelmesini beklediğimiz veri yapıları
+// ============================================================================
+// SHARED TYPES
+// ============================================================================
+// Birden fazla request/response'da kullanılan ortak type'lar
+
+export interface ClothingImage {
+  base64: string;
+  name: string;
+  description: string;
+  category: string;
+}
+
+export interface SuggestionRequestItem {
+  id: string;
+  category: string;
+  description: string;
+}
+
+// ============================================================================
+// REQUEST TYPES
+// ============================================================================
+// Client'tan (Swift/iOS) gelen request veri yapıları
+
 export interface AnalyzeRequestData {
   uuid: string;
   image_base_64: string;
@@ -55,14 +80,8 @@ export interface AnalyzeRequestData {
 export interface TryOnRequestData {
   uuid: string;
   pose_image_base_64: string;
-  clothing_images_base_64: string[]; // Artık tek ve zorunlu yöntem
-  model_type?: "standard" | "nano-banana-pro"; // Model seçimi
-}
-
-export interface SuggestionRequestItem {
-  id: string;
-  category: string;
-  description: string;
+  clothing_items: ClothingImage[];
+  model_type?: "standard" | "nano-banana-pro";
 }
 
 export interface SuggestionRequestData {
@@ -78,4 +97,55 @@ export interface GetUserTierRequestData {
 
 export interface SyncUserRequestData {
   uuid: string;
+}
+
+// ============================================================================
+// RESPONSE TYPES
+// ============================================================================
+// Backend'den client'a dönen response veri yapıları
+
+export interface AnalyzeClothingImageResponse {
+  category: string;
+  description: string;
+  name: string;
+  image_url: string;
+  new_quota: number;
+}
+
+export interface VirtualTryOnResponse {
+  name: string;
+  description: string;
+  category: string;
+  result_image_url: string;
+  new_quota: number;
+}
+
+export interface GetOutfitSuggestionResponse {
+  recommendation?: string[];
+  description?: string;
+  [key: string]: any; // LLM'den gelen diğer alanlar için
+  new_quota: number;
+}
+
+export interface GetUserInfoResponse extends UserData {}
+
+export interface SyncUserWithAdaptyResponse {
+  tier: "freemium" | "basic" | "pro";
+  remainingTryOns: number;
+  remainingSuggestions: number;
+  remainingClothAnalysis: number;
+  lastSyncedWithAdapty: admin.firestore.Timestamp | Date;
+}
+
+export interface InitializeUserResponse {
+  success: boolean;
+  user: UserData;
+}
+
+export interface AdaptyWebhookResponse {
+  status: "success" | "ignored" | "profile_not_found";
+  tier?: "freemium" | "basic" | "pro";
+  reason?: string;
+  event_type?: string;
+  profile_id?: string;
 }

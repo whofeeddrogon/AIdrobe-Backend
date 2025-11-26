@@ -1,6 +1,12 @@
 import * as functions from "firebase-functions/v1";
 import { db, adaptySecretKey } from "../config";
-import { UserData, SyncUserRequestData } from "../types";
+import { 
+  UserData, 
+  SyncUserRequestData, 
+  GetUserInfoResponse, 
+  SyncUserWithAdaptyResponse, 
+  InitializeUserResponse 
+} from "../types";
 import { getAdaptyProfile, calculateQuotaFromAdapty } from "../utils/adapty";
 
 /**
@@ -8,7 +14,7 @@ import { getAdaptyProfile, calculateQuotaFromAdapty } from "../utils/adapty";
  */
 export const getUserInfo = functions
     .runWith({secrets: [adaptySecretKey]})
-    .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
+    .https.onCall(async (payload: any, context: functions.https.CallableContext): Promise<GetUserInfoResponse> => {
       
       const data = payload.data || payload;
       const { uuid } = data;
@@ -46,7 +52,7 @@ export const getUserInfo = functions
  */
 export const syncUserWithAdapty = functions
     .runWith({secrets: [adaptySecretKey]})
-    .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
+    .https.onCall(async (payload: any, context: functions.https.CallableContext): Promise<SyncUserWithAdaptyResponse> => {
       
       const data: SyncUserRequestData = payload.data || payload;
       const { uuid } = data;
@@ -85,14 +91,15 @@ export const syncUserWithAdapty = functions
         
         // Güncellenmiş veriyi döndür
         const updatedData = (await userRef.get()).data() as UserData;
-        return {
+
+        const result = {
           tier: updatedData.tier,
           remainingTryOns: updatedData.remainingTryOns,
           remainingSuggestions: updatedData.remainingSuggestions,
           remainingClothAnalysis: updatedData.remainingClothAnalysis,
           lastSyncedWithAdapty: updatedData.lastSyncedWithAdapty,
         };
-
+        return result;
       } catch (error: any) {
         console.error(`syncUserWithAdapty hatası - User: ${uuid}:`, error);
         
@@ -110,7 +117,7 @@ export const syncUserWithAdapty = functions
  */
 export const initializeUser = functions
     .runWith({secrets: [adaptySecretKey]})
-    .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
+    .https.onCall(async (payload: any, context: functions.https.CallableContext): Promise<InitializeUserResponse> => {
       const { uuid } = payload.data || payload;
 
       if (!uuid) {
@@ -142,7 +149,7 @@ export const initializeUser = functions
         const userDoc = await userRef.get();
 
         const userData: UserData = {
-          tier: quotas.tier as "freemium" | "premium" | "ultra_premium",
+          tier: quotas.tier as "freemium" | "basic" | "pro",
           remainingTryOns: quotas.remainingTryOns,
           remainingSuggestions: quotas.remainingSuggestions,
           remainingClothAnalysis: quotas.remainingClothAnalysis,
@@ -153,7 +160,8 @@ export const initializeUser = functions
         await userRef.set(userData, { merge: true });
         console.log(`Kullanıcı güvenli şekilde başlatıldı: ${uuid} - Tier: ${userData.tier}`);
         
-        return { success: true, user: userData };
+        const result = { success: true, user: userData };
+        return result;
 
       } catch (error: any) {
         console.error(`initializeUser hatası - User: ${uuid}:`, error);

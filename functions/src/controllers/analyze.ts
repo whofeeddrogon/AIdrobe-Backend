@@ -2,14 +2,14 @@ import * as functions from "firebase-functions/v1";
 import axios from "axios";
 import { falKey, runtimeOptions } from "../config";
 import { checkOrUpdateQuota } from "../utils/quota";
-import { AnalyzeRequestData } from "../types";
+import { AnalyzeRequestData, AnalyzeClothingImageResponse } from "../types";
 
 /**
  * 1. KIYAFET ANALİZİ
  */
 export const analyzeClothingImage = functions
     .runWith(runtimeOptions)
-    .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
+    .https.onCall(async (payload: any, context: functions.https.CallableContext): Promise<AnalyzeClothingImageResponse> => {
       
       const data: AnalyzeRequestData = payload.data || payload; 
       const { uuid, image_base_64 } = data;
@@ -94,11 +94,19 @@ export const analyzeClothingImage = functions
             if (!jsonMatch) {
               throw new Error("Cevapta geçerli bir JSON objesi bulunamadı.");
             }
-            
+
             let jsonString = jsonMatch[0];
             const parsedJson = JSON.parse(jsonString);
 
-            return { ...parsedJson, image_url: bgRemovedImageUrl, newQuota };
+            const result = {
+              category: parsedJson.category ?? "",
+              description: parsedJson.description ?? "",
+              name: parsedJson.name ?? "",
+              image_url: bgRemovedImageUrl,
+              new_quota: newQuota,
+            };
+
+            return result;
         } catch (e: any) {
             console.error("LLM JSON parse hatası:", llmOutput, e);
             throw new functions.https.HttpsError("internal", "Yapay zekanın cevabı anlaşılamadı. Lütfen tekrar deneyin.");

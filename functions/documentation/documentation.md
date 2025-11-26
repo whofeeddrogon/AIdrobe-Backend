@@ -48,14 +48,14 @@ Kullanıcıların "Bugün ne giysem?" sorununu ortadan kaldırmak, gardıroplar�
 
 ### **3.2. Abonelik Katmanları ve Kotalar**
 
-| Özellik | Freemium (Tek Seferlik) | Premium (Aylık Yenilenen) | Ultra Premium (Aylık Yenilenen) |
+| Özellik | Freemium (Tek Seferlik) | Basic (Aylık Yenilenen) | Pro (Aylık Yenilenen) |
 | :---- | :---- | :---- | :---- |
 | **Reklamlar** | ✅ Var | 🚫 Yok | 🚫 Yok |
 | **Analiz Hakkı** | 20 | 100 / ay | 300 / ay |
 | **Try-On Hakkı** | 3 | 50 / ay | 100 / ay |
 | **Öneri Hakkı** | 30 | 200 / ay | 300 / ay |
 
-* **Not:** Freemium hakları kullanıcı ilk oluştuğunda tanımlanır ve yenilenmez. Premium/Ultra hakları ise Adapty webhook'ları ile her ay yenilenir.
+* **Not:** Freemium hakları kullanıcı ilk oluştuğunda tanımlanır ve yenilenmez. Basic/Pro hakları ise Adapty webhook'ları ile her ay yenilenir.
 * **Önemli:** Sanal Deneme (Try-On) işleminde, kullanılan kıyafet sayısı kadar hak düşülür. (Örn: 2 kıyafetli bir deneme 2 Try-On hakkı harcar.)
 
 ### **3.3. Finansal Analiz ve Kârlılık**
@@ -83,7 +83,7 @@ Tüm hakların sonuna kadar kullanıldığı senaryodur.
 *   **Toplam Net Kâr (Power User):** **+$0.102**
 *   *(Not: Ortalama bir kullanıcı (%50 kullanım) için de sistem kârlıdır (~$0.02), ancak marj düşüktür. Freemium'un asıl amacı kullanıcı kazanımıdır.)*
 
-**B. Premium Abonelik Ekonomisi ($9.99 / Ay)**
+**B. Basic Abonelik Ekonomisi ($9.99 / Ay)**
 
 *   **Net Gelir (Mağaza Kesintisi Sonrası):** ~$8.49
 *   **Yıllık Plan:** $95.90 (%20 İndirim) -> Aylık ~$7.99
@@ -98,7 +98,7 @@ Tüm hakların sonuna kadar kullanıldığı senaryodur.
     *   **Toplam Maliyet:** $1.90
     *   **Net Kâr:** **$6.59 / Ay**
 
-**C. Ultra Premium Abonelik Ekonomisi ($19.99 / Ay)**
+**C. Pro Abonelik Ekonomisi ($19.99 / Ay)**
 
 *   **Net Gelir (Mağaza Kesintisi Sonrası):** ~$16.99
 *   **Yıllık Plan:** $191.90 (%20 İndirim) -> Aylık ~$15.99
@@ -188,7 +188,7 @@ Adapty'den gelen sunucu bildirimlerini dinler. Abonelik yenilendiğinde, iptal e
 ## **5. Veritabanı Yapısı (Firestore)**
 
 ### **`users/{userId}`**
-* `tier`: "freemium" | "premium" | "ultra_premium"
+* `tier`: "freemium" | "basic" | "pro"
 * `remainingTryOns`: number
 * `remainingSuggestions`: number
 * `remainingClothAnalysis`: number
@@ -213,12 +213,12 @@ Bu plan, agresif büyüme yerine sürdürülebilir kârlılık ve teknik stabili
 *   **Yıllık İndirim:** Yıllık alımlarda %20 indirim uygulanır.
 *   **A La Carte:** Free kullanıcıların %3-%5'i ek paket satın alır (Ort. Kâr: $2.05/paket).
 *   **Mağaza Kesintisi:** %15 (Small Business Program).
-*   **Ortalama Kâr Marjı (Ağırlıklı):** Premium: ~$6.25/ay, Ultra: ~$11.76/ay.
+*   **Ortalama Kâr Marjı (Ağırlıklı):** Basic: ~$6.25/ay, Pro: ~$11.76/ay.
 
 ### **1. Yıl: Pazar Uyumu (Survival Mode)**
 *   **Hedef:** 10.000 Aylık Aktif Kullanıcı (MAU).
 *   **Dönüşüm:** %3 Ücretli Abone (300 Kişi).
-*   **Dağılım:** 210 Premium, 90 Ultra.
+*   **Dağılım:** 210 Basic, 90 Pro.
 *   **Finansal Tablo (Aylık):**
     *   **Abonelik Kârı:** (210 * $6.25) + (90 * $11.76) = **$2,370**
     *   **Freemium (Reklam + A La Carte):** (9,700 * $0.02) + (194 * $2.05) = **$591**
@@ -228,7 +228,7 @@ Bu plan, agresif büyüme yerine sürdürülebilir kârlılık ve teknik stabili
 ### **2. Yıl: Büyüme ve Optimizasyon (Growth Mode)**
 *   **Hedef:** 50.000 MAU.
 *   **Dönüşüm:** %5 Ücretli Abone (2.500 Kişi).
-*   **Dağılım:** 1.500 Premium, 1.000 Ultra.
+*   **Dağılım:** 1.500 Basic, 1.000 Pro.
 *   **Gelişmeler:** Android sürümü, Sosyal özellikler.
 *   **Finansal Tablo (Aylık):**
     *   **Abonelik Kârı:** (1.500 * $6.25) + (1.000 * $11.76) = **$21,135**
@@ -239,7 +239,7 @@ Bu plan, agresif büyüme yerine sürdürülebilir kârlılık ve teknik stabili
 ### **3. Yıl: Ölçeklenme ve B2B (Scale Mode)**
 *   **Hedef:** 200.000 MAU.
 *   **Dönüşüm:** %6 Ücretli Abone (12.000 Kişi).
-*   **Dağılım:** 7.200 Premium, 4.800 Ultra.
+*   **Dağılım:** 7.200 Basic, 4.800 Pro.
 *   **Gelişmeler:** Kendi GPU sunucularımız, B2B API Satışı.
 *   **Finansal Tablo (Aylık):**
     *   **Abonelik Kârı:** (7.200 * $6.25) + (4.800 * $11.76) = **$101,448**

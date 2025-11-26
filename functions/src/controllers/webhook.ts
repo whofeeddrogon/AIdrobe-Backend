@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions/v1";
 import { db, adaptySecretKey } from "../config";
 import { getAdaptyProfile, calculateQuotaFromAdapty } from "../utils/adapty";
-import { UserData } from "../types";
+import { UserData, AdaptyWebhookResponse } from "../types";
 
 /**
  * 6. ADAPTY WEBHOOK
@@ -27,7 +27,8 @@ export const adaptyWebhook = functions
 
         if (!profileId) {
            console.warn('Webhook: profile_id eksik.', event);
-           res.status(200).json({ status: 'ignored', reason: 'Missing profile_id' });
+           const response: AdaptyWebhookResponse = { status: 'ignored', reason: 'Missing profile_id' };
+           res.status(200).json(response);
            return;
         }
 
@@ -41,7 +42,8 @@ export const adaptyWebhook = functions
 
         if (!relevantEvents.includes(eventType)) {
           console.log(`Ignoring event type: ${eventType}`);
-          res.status(200).json({ status: 'ignored', event_type: eventType });
+          const response: AdaptyWebhookResponse = { status: 'ignored', event_type: eventType };
+          res.status(200).json(response);
           return;
         }
 
@@ -49,7 +51,8 @@ export const adaptyWebhook = functions
         
         if (!adaptyProfile) {
           console.error(`Profile ${profileId} not found in Adapty`);
-          res.status(200).json({ status: 'profile_not_found', profile_id: profileId });
+          const response: AdaptyWebhookResponse = { status: 'profile_not_found', profile_id: profileId };
+          res.status(200).json(response);
           return;
         }
 
@@ -71,7 +74,8 @@ export const adaptyWebhook = functions
         await userRef.set(userDataToSet, { merge: true });
         
         console.log(`User ${profileId} webhook ile güncellendi, tier: ${newQuotas.tier}`);
-        res.status(200).json({ status: 'success', tier: newQuotas.tier });
+        const response: AdaptyWebhookResponse = { status: 'success', tier: newQuotas.tier };
+        res.status(200).json(response);
 
       } catch (error: any) {
         console.error('Webhook error:', error);

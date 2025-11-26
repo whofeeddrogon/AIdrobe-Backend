@@ -2,14 +2,14 @@ import * as functions from "firebase-functions/v1";
 import axios, { AxiosError } from "axios";
 import { falKey, runtimeOptions } from "../config";
 import { checkOrUpdateQuota } from "../utils/quota";
-import { SuggestionRequestData } from "../types";
+import { SuggestionRequestData, GetOutfitSuggestionResponse } from "../types";
 
 /**
  * 3. KOMBİN ÖNERİSİ
  */
 export const getOutfitSuggestion = functions
     .runWith(runtimeOptions)
-    .https.onCall(async (payload: any, context: functions.https.CallableContext) => {
+    .https.onCall(async (payload: any, context: functions.https.CallableContext): Promise<GetOutfitSuggestionResponse> => {
       
       const data: SuggestionRequestData = payload.data || payload;
       const { uuid, user_request, temperature, useRandomModel } = data;
@@ -73,7 +73,14 @@ export const getOutfitSuggestion = functions
           // Ancak yine de JSON dönmesini bekliyoruz
           
           console.log(`Outfit suggestion başarıyla tamamlandı - User: ${uuid}`);
-          return { ...parsedJson, newQuota };
+
+          const result = {
+            recommendation: parsedJson.recommendation ?? [],
+            description: parsedJson.description ?? "",
+            new_quota: newQuota,
+          };
+          
+          return result;
           
         } catch (e: any) {
           console.error("LLM JSON parse hatası:", llmOutput, e);

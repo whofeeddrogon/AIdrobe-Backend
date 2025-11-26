@@ -8,7 +8,7 @@
     <!-- Visualization & Content Choices: 
         - Report Info: Subscription Tiers Table -> Goal: Organize -> Viz/Presentation Method: Styled HTML Table -> Interaction: None -> Justification: Clearest way to present structured, comparative feature data. Method: HTML/Tailwind. NO SVG/Mermaid.
         - Report Info: Freemium Economics -> Goal: Inform/Compare -> Viz/Presentation Method: Bar Chart -> Interaction: Static -> Justification: A bar chart provides an instant, powerful visual comparison between Ad Revenue and API Costs, proving the freemium tier's profitability. Method: Chart.js/Canvas. NO SVG/Mermaid.
-        - Report Info: Subscription Profitability Analysis -> Goal: Compare/Relationships -> Viz/Presentation Method: Dynamic Bar Chart & Text Blocks -> Interaction: User can toggle between 'Premium'/'Ultra Premium' tiers, '50%'/'100%' usage, and 'Monthly'/'Annual' plans. -> Justification: This is the core interactive element. Dynamically updating the chart and key metrics based on user selection makes the complex profitability data explorable and easy to digest. It clearly demonstrates the model's robustness in different scenarios. Method: Chart.js/Canvas + Vanilla JS. NO SVG/Mermaid.
+        - Report Info: Subscription Profitability Analysis -> Goal: Compare/Relationships -> Viz/Presentation Method: Dynamic Bar Chart & Text Blocks -> Interaction: User can toggle between 'Basic'/'Pro' tiers, '50%'/'100%' usage, and 'Monthly'/'Annual' plans. -> Justification: This is the core interactive element. Dynamically updating the chart and key metrics based on user selection makes the complex profitability data explorable and easy to digest. It clearly demonstrates the model's robustness in different scenarios. Method: Chart.js/Canvas + Vanilla JS. NO SVG/Mermaid.
         - Report Info: A La Carte Packs -> Goal: Organize/Inform -> Viz/Presentation Method: Styled HTML Table & Bar Chart -> Interaction: None -> Justification: A detailed table displays all packs, while a bar chart visually emphasizes the extremely high profit margins, reinforcing the upsell strategy and revenue potential. Method: HTML/Tailwind & Chart.js/Canvas. NO SVG/Mermaid.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -99,12 +99,12 @@
                     <div class="bg-surface p-8 rounded-2xl shadow-lg border border-gray-100 text-center">
                         <div class="text-6xl mb-4">🖼️</div>
                         <h4 class="text-2xl font-bold text-primary-text">"Görselleştirici"</h4>
-                        <p class="mt-2 text-secondary-text h-24">Bir kombinin üzerinde nasıl duracağını görmeden emin olamayan ve reklamsız bir deneyim isteyen kullanıcı. İdeal olarak <strong class="text-primary-text">Premium</strong> abonesidir.</p>
+                        <p class="mt-2 text-secondary-text h-24">Bir kombinin üzerinde nasıl duracağını görmeden emin olamayan ve reklamsız bir deneyim isteyen kullanıcı. İdeal olarak <strong class="text-primary-text">Basic</strong> abonesidir.</p>
                     </div>
                     <div class="bg-surface p-8 rounded-2xl shadow-lg border border-gray-100 text-center">
                         <div class="text-6xl mb-4">💎</div>
                         <h4 class="text-2xl font-bold text-primary-text">"Stil Tutkunu"</h4>
-                        <p class="mt-2 text-secondary-text h-24">Geniş bir gardıroba sahip, sınırsız erişim ve özel otomasyon özellikleri isteyen "güçlü kullanıcı". İdeal olarak <strong class="text-primary-text">Ultra Premium</strong> abonesidir.</p>
+                        <p class="mt-2 text-secondary-text h-24">Geniş bir gardıroba sahip, sınırsız erişim ve özel otomasyon özellikleri isteyen "güçlü kullanıcı". İdeal olarak <strong class="text-primary-text">Pro</strong> abonesidir.</p>
                     </div>
                 </div>
             </section>
@@ -120,8 +120,8 @@
                             <tr>
                                 <th class="p-4 font-bold text-xl w-1/4">Özellik</th>
                                 <th class="p-4 font-bold text-center text-lg">Freemium</th>
-                                <th class="p-4 font-bold text-center text-lg bg-accent-light/50 rounded-t-lg">Premium</th>
-                                <th class="p-4 font-bold text-center text-lg">Ultra Premium</th>
+                                <th class="p-4 font-bold text-center text-lg bg-accent-light/50 rounded-t-lg">Basic</th>
+                                <th class="p-4 font-bold text-center text-lg">Pro</th>
                             </tr>
                         </thead>
                         <tbody id="features-table-body">
@@ -131,7 +131,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="bg-surface p-6 rounded-2xl shadow-lg border border-gray-100">
-                        <h4 class="text-2xl font-bold text-primary-text">Premium Planları</h4>
+                        <h4 class="text-2xl font-bold text-primary-text">Basic Planları</h4>
                         <div class="space-y-4 mt-4">
                              <div class="border border-gray-200 rounded-lg p-4">
                                 <p class="font-bold">Aylık</p>
@@ -144,7 +144,7 @@
                         </div>
                     </div>
                     <div class="bg-surface p-6 rounded-2xl shadow-lg border border-gray-100">
-                        <h4 class="text-2xl font-bold text-primary-text">Ultra Premium Planları</h4>
+                        <h4 class="text-2xl font-bold text-primary-text">Pro Planları</h4>
                          <div class="space-y-4 mt-4">
                              <div class="border border-gray-200 rounded-lg p-4">
                                 <p class="font-bold">Aylık</p>
@@ -173,8 +173,8 @@
                             <button id="btn-annual" class="plan-btn w-28 py-2 rounded-full text-sm font-semibold">Yıllık</button>
                         </div>
                         <div class="flex bg-accent-light p-1 rounded-full">
-                            <button id="btn-premium" class="tier-btn w-28 py-2 rounded-full text-sm font-semibold">Premium</button>
-                            <button id="btn-ultra" class="tier-btn w-28 py-2 rounded-full text-sm font-semibold">Ultra Premium</button>
+                            <button id="btn-premium" class="tier-btn w-28 py-2 rounded-full text-sm font-semibold">Basic</button>
+                            <button id="btn-ultra" class="tier-btn w-28 py-2 rounded-full text-sm font-semibold">Pro</button>
                         </div>
                         <div class="flex bg-accent-light p-1 rounded-full">
                             <button id="btn-50" class="usage-btn w-40 py-2 rounded-full text-sm font-semibold">Ortalama Kullanıcı (%50)</button>
@@ -255,11 +255,11 @@
                 { name: 'Özel Temalar', values: ['❌', '❌', '✅'] },
             ],
             profitability: {
-                premium: {
+                basic: {
                     monthly: { revenue: 8.50, cost_100: 3.80, cost_50: 1.90 },
                     annual: { revenue: 67.99, cost_100: 45.60, cost_50: 22.80 }
                 },
-                ultra: {
+                pro: {
                     monthly: { revenue: 17.00, cost_100: 9.10, cost_50: 4.55 },
                     annual: { revenue: 135.99, cost_100: 109.20, cost_50: 54.60 }
                 }
@@ -275,7 +275,7 @@
         };
 
         const state = {
-            selectedTier: 'premium',
+            selectedTier: 'basic',
             usageScenario: '50',
             selectedPlan: 'monthly'
         };
@@ -410,8 +410,8 @@
             if(activePlanBtn) activePlanBtn.classList.add('bg-surface', 'shadow', 'text-primary-text');
         }
 
-        btnPremium.addEventListener('click', () => { state.selectedTier = 'premium'; updateDashboard(); });
-        btnUltra.addEventListener('click', () => { state.selectedTier = 'ultra'; updateDashboard(); });
+        btnPremium.addEventListener('click', () => { state.selectedTier = 'basic'; updateDashboard(); });
+        btnUltra.addEventListener('click', () => { state.selectedTier = 'pro'; updateDashboard(); });
         btn50.addEventListener('click', () => { state.usageScenario = '50'; updateDashboard(); });
         btn100.addEventListener('click', () => { state.usageScenario = '100'; updateDashboard(); });
         btnMonthly.addEventListener('click', () => { state.selectedPlan = 'monthly'; updateDashboard(); });
