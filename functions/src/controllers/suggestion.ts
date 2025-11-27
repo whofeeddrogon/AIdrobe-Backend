@@ -23,6 +23,9 @@ export const getOutfitSuggestion = functions
         
         const newQuota = await checkOrUpdateQuota(uuid, "remainingSuggestions");
 
+        // Client artık tam prompt'u gönderiyor, ekleme yapmıyoruz.
+        const prompt = user_request;
+
         // Model Seçimi
         const defaultModel = "google/gemini-2.5-flash";
         const randomModels = [
@@ -50,7 +53,7 @@ export const getOutfitSuggestion = functions
             "https://fal.run/fal-ai/any-llm/enterprise",
             { 
               model: selectedModel,
-              prompt: user_request,
+              prompt: prompt,
               max_tokens: 1024,
               temperature: temperature ?? 0.7,
             },
@@ -74,9 +77,11 @@ export const getOutfitSuggestion = functions
           
           console.log(`Outfit suggestion başarıyla tamamlandı - User: ${uuid}`);
 
-          const result = {
+          const result: GetOutfitSuggestionResponse = {
             recommendation: parsedJson.recommendation ?? [],
             description: parsedJson.description ?? "",
+            category: parsedJson.category ?? "Casual",
+            name: parsedJson.name ?? "Stylish Outfit",
             new_quota: newQuota,
           };
           

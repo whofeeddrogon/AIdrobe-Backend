@@ -61,12 +61,6 @@ export interface ClothingImage {
   category: string;
 }
 
-export interface SuggestionRequestItem {
-  id: string;
-  category: string;
-  description: string;
-}
-
 // ============================================================================
 // REQUEST TYPES
 // ============================================================================
@@ -120,9 +114,17 @@ export interface VirtualTryOnResponse {
   new_quota: number;
 }
 
+export interface OutfitRecommendationItem {
+  id: string;
+  name: string;
+  category: string;
+}
+
 export interface GetOutfitSuggestionResponse {
   recommendation?: string[];
   description?: string;
+  category?: string;
+  name?: string;
   [key: string]: any; // LLM'den gelen diğer alanlar için
   new_quota: number;
 }
