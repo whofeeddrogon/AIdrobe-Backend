@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIdrobe Perfect Onboarding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display-swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #d4d4d4; }
+        
+        .iphone-mockup {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            background-color: #F0F0F0;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 8px solid #0A0A0A;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slider-container {
+            display: flex;
+            width: 600%; /* 6 slides */
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .slide { width: 16.666%; height: 100%; flex-shrink: 0; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* Range Slider & User Info Styles */
+        .range-slider {
+            -webkit-appearance: none; width: 100%; height: 6px;
+            background: #E5E7EB; border-radius: 5px; outline: none;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 24px; height: 24px; border-radius: 50%;
+            background: #7900FF; cursor: pointer;
+            box-shadow: 0 2px 6px rgba(121, 0, 255, 0.4);
+            border: 2px solid white;
+        }
+        .unit-toggle {
+            background: #F3F4F6; border-radius: 8px; padding: 2px; display: flex;
+        }
+        .unit-btn {
+            padding: 4px 8px; font-size: 10px; font-weight: 700; border-radius: 6px; color: #9CA3AF; transition: all 0.2s;
+        }
+        .unit-btn.active {
+            background: white; color: #0A0A0A; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .gender-btn {
+            flex: 1; padding: 12px; border-radius: 16px; border: 1px solid #E5E7EB;
+            background: white; color: #505050; font-weight: 600; font-size: 14px;
+            transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .gender-btn.selected {
+            border-color: #7900FF; background: #F5F3FF; color: #7900FF;
+        }
+
+        /* Animations */
+        .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- SLIDE 1: HOLO-FASHION ANIMATION --- */
+        .holo-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .holo-ring {
+            position: absolute;
+            border-radius: 50%;
+            inset: 0;
+            margin: auto;
+        }
+
+        .ring-1 {
+            width: 100%; height: 100%;
+            border: 1px solid rgba(121, 0, 255, 0.1);
+            border-top: 2px solid #7900FF;
+            border-bottom: 2px solid #7900FF;
+            animation: spin 10s linear infinite;
+        }
+
+        .ring-2 {
+            width: 70%; height: 70%;
+            border: 2px dashed #00BFFF;
+            opacity: 0.5;
+            animation: spinReverse 15s linear infinite;
+        }
+
+        .ring-3 {
+            width: 130%; height: 130%;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-left: 4px solid #0A0A0A;
+            animation: spin 20s linear infinite;
+            opacity: 0.1;
+        }
+
+        .central-icon {
+            width: 90px; height: 90px;
+            background: transparent;
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: float 4s ease-in-out infinite;
+            z-index: 20;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .central-icon::after {
+            content: ''; position: absolute; inset: -4px;
+            border-radius: 28px;
+            background: linear-gradient(45deg, #7900FF, transparent, #00BFFF);
+            z-index: -1; opacity: 0.5;
+        }
+
+        .orbit-item {
+            position: absolute;
+            width: 40px; height: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 20px;
+            animation: orbit 8s linear infinite;
+        }
+        
+        .orbit-1 { animation-delay: 0s; }
+        .orbit-2 { animation-delay: -2.66s; }
+        .orbit-3 { animation-delay: -5.33s; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spinReverse { 100% { transform: rotate(-360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes orbit {
+            0% { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+        }
+
+        /* --- SLIDE 2: ANALYSIS --- */
+        .scan-line {
+            width: 100%; height: 3px;
+            background: #7900FF; box-shadow: 0 0 15px #7900FF;
+            position: absolute; top: 0; left: 0; z-index: 20; opacity: 0;
+        }
+        .scan-active { animation: scanMove 2.5s linear forwards; }
+        @keyframes scanMove { 
+            0% { top: 0; opacity: 1; } 
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; } 
+        }
+
+        /* Pie Chart */
+        .pie-chart {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: conic-gradient(#7900FF 0% 40%, #00BFFF 40% 65%, #005F73 65% 80%, #505050 80% 100%);
+            position: relative;
+        }
+        .pie-chart::after { content: ""; position: absolute; inset: 18px; background: white; border-radius: 50%; }
+
+        /* --- SLIDE 3: TRY ON --- */
+        .floating-cloth-card {
+            position: absolute; bottom: 20px; right: 20px;
+            width: 100px; height: 120px;
+            background: white; padding: 5px; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: rotate(6deg); z-index: 20;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .cloth-fly-animation {
+            bottom: 50%; right: 50%;
+            transform: translate(50%, 50%) scale(2) rotate(0deg); opacity: 0;
+        }
+        .flash-overlay {
+            position: absolute; inset: 0; background: white;
+            opacity: 0; pointer-events: none; z-index: 30;
+        }
+        .flash-active { animation: flashAnim 0.6s ease-out; }
+        @keyframes flashAnim { 0% { opacity: 0; } 50% { opacity: 0.8; } 100% { opacity: 0; } }
+
+        /* --- Paywall Styles --- */
+        .tab-btn { transition: all 0.3s ease; position: relative; }
+        .tab-btn.active { background-color: #7900FF; color: white; box-shadow: 0 4px 12px rgba(121, 0, 255, 0.3); z-index: 10; border-color: transparent; }
+        .tab-btn.inactive { background-color: #FFFFFF; color: #505050; border: 1px solid #E0E0E0; z-index: 0; }
+        
+        .progress-bg { background-color: #E5E7EB; border-radius: 999px; height: 6px; width: 100%; overflow: hidden; margin-top: 6px; }
+        .progress-fill { height: 100%; border-radius: 999px; transition: width 0.6s ease-out, background-color 0.3s; }
+        
+        .icon-box { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; background-color: #F9FAFB; border: 1px solid #F3F4F6; }
+        .badge-pulse { animation: badgePulse 2s infinite; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .main-btn {
+            background: #0A0A0A; color: white; font-weight: 600; 
+            border-radius: 16px; padding: 16px; width: 100%; text-align: center;
+            transition: transform 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .main-btn:active { transform: scale(0.98); }
+
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-5">
+
+    <div class="iphone-mockup">
+        
+        <!-- Top Bar -->
+        <div class="absolute top-0 w-full h-14 flex justify-between items-end px-6 pb-2 z-50 text-[#0A0A0A] font-bold text-xs pointer-events-none">
+            <span>9:41</span>
+            <div class="flex gap-1">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+            </div>
+        </div>
+
+        <!-- SLIDES -->
+        <div class="slider-container" id="slider">
+
+            <!-- 1. WELCOME (Holo Animation) -->
+            <div class="slide bg-[#F0F0F0] px-6 pt-24 pb-10">
+                <div class="flex-1 flex flex-col items-center justify-center">
+                    
+                    <div class="holo-container mb-12">
+                        <div class="holo-ring ring-1"></div>
+                        <div class="holo-ring ring-2"></div>
+                        <div class="holo-ring ring-3"></div>
+                        
+                        <div class="central-icon">
+                            <img src="Icon-iOS-Default-1024x1024@1x.png" class="w-full h-full object-cover" alt="AIdrobe Logo">
+                        </div>
+
+                        <!-- Orbiting Items -->
+                        <div class="orbit-item orbit-1">👕</div>
+                        <div class="orbit-item orbit-2">👖</div>
+                        <div class="orbit-item orbit-3">👟</div>
+                    </div>
+                    
+                    <h1 class="text-4xl font-black text-[#0A0A0A] text-center mb-5 fade-in-up z-10 tracking-tight leading-none">
+                        Your Style<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#7900FF] to-[#00BFFF]">Perfected.</span>
+                    </h1>
+                    <p class="text-center text-[#505050] text-sm font-medium px-0 fade-in-up delay-100 leading-relaxed z-10 w-full">
+                        The ultimate digital wardrobe experience. <br>
+                        <span class="text-[#0A0A0A] font-bold mt-1 block">Digitize. Organize. Inspire.</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2. ANALYZE (Image Above, Info Below) -->
+            <div class="slide bg-[#F0F0F0] px-6 pt-20 pb-24 overflow-y-auto no-scrollbar">
+                <div class="flex-1 flex flex-col items-center">
+                    <h2 class="text-2xl font-black text-[#0A0A0A] text-center mb-6 flex-shrink-0">Smart Analysis</h2>
+                    
+                    <!-- Image Card (Square) -->
+                    <div class="w-full h-64 bg-white rounded-3xl shadow-xl border border-gray-200 relative overflow-hidden mb-3 flex-shrink-0">
+                        <div class="scan-line" id="scanLine"></div>
+                        
+                        <div class="w-full h-full relative">
+                            <!-- Messy Photo (From Config) -->
+                            <img src="unnamed (1).jpg" class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700" id="messyImg" alt="Before">
+                            
+                            <!-- Clean Photo (From Config) -->
+                            <div class="absolute inset-0 bg-white opacity-0 transition-opacity duration-700 flex items-center justify-center p-6" id="cleanImg">
+                                <img src="5Gy2pbqhJyG6F_QCa9Lv9.png" class="w-full h-full object-contain object-center drop-shadow-xl" id="cleanImgSrc" alt="After">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Card (Moved Below Image) -->
+                    <div class="w-full bg-white p-3 rounded-2xl shadow-sm border border-gray-200 opacity-0 transition-all duration-500 translate-y-4 mb-3 flex-shrink-0" id="analysisInfo">
+                        <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                            <span class="text-xs font-bold text-[#7900FF] uppercase tracking-wide">Analysis Complete</span>
+                            <div class="flex gap-1">
+                                <span class="bg-gray-100 text-[#505050] text-[10px] px-2 py-0.5 rounded-full font-bold">Top</span>
+                                <span class="bg-gray-100 text-[#505050] text-[10px] px-2 py-0.5 rounded-full font-bold">Cotton</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-[#0A0A0A] text-base mb-1">White Graphic T-Shirt</h3>
+                            <p class="text-[11px] text-[#505050] leading-snug">
+                                A white, short-sleeved t-shirt with a graphic print. Features a colorful abstract design with shapes in blue, red, and yellow. Classic crew neck suitable for casual wear.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Stats (Compacted) -->
+                    <div class="w-full bg-white rounded-3xl p-3 shadow-lg border border-gray-200 flex items-center gap-4 opacity-0 transition-all duration-700 translate-y-4 flex-shrink-0" id="statsCard">
+                        <div class="pie-chart flex-shrink-0 scale-90"></div>
+                        <div class="flex-1 grid grid-cols-2 gap-x-1 gap-y-2">
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-1.5 text-[10px] text-[#505050] font-bold"><div class="w-2 h-2 rounded-full bg-[#7900FF]"></div> T-Shirts</div>
+                                <span class="text-xs font-black text-[#0A0A0A] ml-3.5">40%</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-1.5 text-[10px] text-[#505050] font-bold"><div class="w-2 h-2 rounded-full bg-[#00BFFF]"></div> Jeans</div>
+                                <span class="text-xs font-black text-[#0A0A0A] ml-3.5">25%</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-1.5 text-[10px] text-[#505050] font-bold"><div class="w-2 h-2 rounded-full bg-[#005F73]"></div> Jackets</div>
+                                <span class="text-xs font-black text-[#0A0A0A] ml-3.5">15%</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-1.5 text-[10px] text-[#505050] font-bold"><div class="w-2 h-2 rounded-full bg-[#505050]"></div> Shoes</div>
+                                <span class="text-xs font-black text-[#0A0A0A] ml-3.5">20%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. VIRTUAL TRY-ON -->
+            <div class="slide bg-[#F0F0F0] px-6 pt-20 pb-10">
+                <div class="flex-1 flex flex-col items-center">
+                    <h2 class="text-2xl font-black text-[#0A0A0A] text-center mb-6">Virtual Try-On</h2>
+                    
+                    <div class="w-full h-[65%] relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-200">
+                        <div class="flash-overlay" id="flashOverlay"></div>
+
+                        <!-- User Base -->
+                        <img src="Gemini_Generated_Image_nrn7p6nrn7p6nrn7.png" class="absolute inset-0 w-full h-full object-cover" id="userBase" alt="User">
+
+                        <!-- Result Photo -->
+                        <div class="absolute inset-0 opacity-0 transition-opacity duration-300" id="userResult">
+                            <img src="Gemini_Generated_Image_i60zxhi60zxhi60z.png" class="w-full h-full object-cover" id="userResultSrc" alt="Result">
+                            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-lg">
+                                <p class="text-xs font-bold text-[#7900FF]">✨ Generated Look</p>
+                            </div>
+                        </div>
+
+                        <!-- Floating Cloth -->
+                        <div class="floating-cloth-card bg-white border border-gray-100 flex items-center justify-center p-2" id="clothCard">
+                            <img src="5Gy2pbqhJyG6F_QCa9Lv9.png" class="w-full h-full object-contain" id="clothCardSrc" alt="Cloth">
+                        </div>
+                    </div>
+
+                    <p class="text-center text-[#505050] mt-8 text-sm px-6 fade-in-up">
+                        Tap "Visualize" to see the magic.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 4. AI STYLIST -->
+            <div class="slide bg-[#F0F0F0] px-6 pt-20 pb-10">
+                <div class="flex-1 flex flex-col justify-start">
+                    <h2 class="text-2xl font-black text-[#0A0A0A] text-center mb-6">AI Stylist</h2>
+
+                    <!-- Request -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 mb-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px]">👤</div>
+                            <p class="text-xs font-bold text-[#7900FF] uppercase">Your Request</p>
+                        </div>
+                        <p class="text-sm text-[#0A0A0A] font-medium leading-relaxed italic">
+                            "I have a coffee date today. It's chilly outside. Create a cozy, casual outfit."
+                        </p>
+                    </div>
+
+                    <!-- Result -->
+                    <div class="bg-white rounded-3xl p-5 shadow-lg border border-[#7900FF]/20 fade-in-up delay-200">
+                        <div class="flex gap-2 mb-4">
+                            <!-- Placeholder Styling Images -->
+                            <div class="flex-1 aspect-[3/4] rounded-xl overflow-hidden relative bg-gray-100 border-gray-100">
+                                <img src="Gemini_Generated_Image_qbq8cqqbq8cqqbq8.jpg" class="w-full h-full object-cover">
+                                <div class="absolute bottom-1 left-1 bg-black/50 text-white text-[8px] px-2 py-0.5 rounded">Suggestion 1</div>
+                            </div>
+                            <div class="flex-1 aspect-[3/4] rounded-xl overflow-hidden relative bg-gray-100 border-gray-100">
+                                <img src="Gemini_Generated_Image_qbq8cqqbq8cqqbq8.png" class="w-full h-full object-cover">
+                                <div class="absolute bottom-1 left-1 bg-black/50 text-white text-[8px] px-2 py-0.5 rounded">Suggestion 2</div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-[#F9FAFB] rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-lg">🎨</span>
+                                <span class="text-xs font-bold text-[#0A0A0A]">Stylist Note</span>
+                            </div>
+                            <p class="text-xs text-[#505050] leading-relaxed">
+                                Try this layered look with a warm jacket and a comfortable top. It's stylish yet cozy enough for your coffee date.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. USER INFO -->
+            <div class="slide bg-[#F0F0F0] px-6 pt-16 pb-32 overflow-y-auto no-scrollbar">
+                <div class="flex-1 flex flex-col">
+                    <h2 class="text-2xl font-black text-[#0A0A0A] text-center mb-2">About You</h2>
+                    <p class="text-center text-[#505050] text-sm mb-6">Help us tailor the perfect fit.</p>
+
+                    <!-- Gender -->
+                    <div class="mb-6">
+                        <label class="text-xs font-bold text-[#0A0A0A] uppercase tracking-wide mb-3 block">Gender</label>
+                        <div class="flex gap-3">
+                            <button class="gender-btn selected" onclick="selectGender(this, 'female')">
+                                Female
+                            </button>
+                            <button class="gender-btn" onclick="selectGender(this, 'male')">
+                                Male
+                            </button>
+                            <button class="gender-btn" onclick="selectGender(this, 'other')">
+                                Other
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Age -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-xs font-bold text-[#0A0A0A] uppercase tracking-wide">Age</label>
+                            <span class="text-xl font-black text-[#7900FF]" id="disp-age">24</span>
+                        </div>
+                        <input type="range" min="13" max="80" value="24" class="range-slider" oninput="updateAge(this.value)">
+                    </div>
+
+                    <!-- Height -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-xs font-bold text-[#0A0A0A] uppercase tracking-wide">Height</label>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+                            <div class="text-center mb-4">
+                                <span class="text-3xl font-black text-[#0A0A0A]" id="disp-height">170 cm <span class="text-lg text-gray-400 font-bold">/ 5'7"</span></span>
+                            </div>
+                            <input type="range" min="100" max="250" value="170" class="range-slider" id="input-height" oninput="updateHeight(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Weight -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-xs font-bold text-[#0A0A0A] uppercase tracking-wide">Weight</label>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+                            <div class="text-center mb-4">
+                                <span class="text-3xl font-black text-[#0A0A0A]" id="disp-weight">60 kg <span class="text-lg text-gray-400 font-bold">/ 132 lbs</span></span>
+                            </div>
+                            <input type="range" min="30" max="200" value="60" class="range-slider" id="input-weight" oninput="updateWeight(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Skip Option Removed from here -->
+                </div>
+            </div>
+
+            <!-- 6. PAYWALL -->
+            <div class="slide bg-[#F0F0F0] px-0 pt-0 pb-0 overflow-hidden flex flex-col">
+                <div class="pt-12 px-6 pb-2 flex-shrink-0">
+                    <h1 class="text-2xl font-black text-[#0A0A0A] text-center leading-tight mb-1">Unlock Your Potential</h1>
+                    <p class="text-sm text-[#505050] text-center">Compare plans & find your perfect fit.</p>
+                </div>
+
+                <div class="flex justify-center mb-4 px-6 flex-shrink-0">
+                    <div class="bg-[#E0E0E0] p-1 rounded-full flex relative w-full max-w-[280px]">
+                        <button onclick="setBilling('monthly')" id="btn-monthly" class="w-1/2 py-2 rounded-full text-xs font-bold z-10 transition-colors bg-[#FFFFFF] shadow-sm text-[#7900FF]">Monthly</button>
+                        <button onclick="setBilling('yearly')" id="btn-yearly" class="w-1/2 py-2 rounded-full text-xs font-bold z-10 transition-colors text-[#505050] relative">
+                            Yearly
+                            <span class="absolute -top-2 -right-3 bg-[#00BFFF] text-white text-[9px] px-1.5 py-0.5 rounded-full shadow-sm font-bold tracking-tight">SAVE 25%</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex px-6 gap-2 mb-3 flex-shrink-0 items-end">
+                    <button onclick="switchTier('freemium')" id="tab-freemium" class="tab-btn inactive flex-1 py-3 rounded-xl text-xs font-bold">Free</button>
+                    <button onclick="switchTier('basic')" id="tab-basic" class="tab-btn inactive flex-1 py-3 rounded-xl text-xs font-bold">Basic</button>
+                    <button onclick="switchTier('pro')" id="tab-pro" class="tab-btn active flex-1 py-3 rounded-xl text-xs font-bold overflow-visible">
+                        Pro
+                        <span class="absolute -top-3 left-[40%] transform -translate-x-1/2 bg-[#00BFFF] text-white text-[7px] px-2 py-0.5 rounded-full shadow-lg shadow-cyan-900/20 font-bold tracking-wider w-max border-2 border-[#F0F0F0] badge-pulse whitespace-nowrap">
+                            MOST POPULAR
+                        </span>
+                    </button>
+                </div>
+
+                <div class="flex-1 px-5 pb-5 min-h-0 overflow-hidden flex flex-col">
+                    <div id="card-container" class="bg-[#FFFFFF] rounded-[2rem] p-6 shadow-xl border border-[#E0E0E0] flex-1 flex flex-col tier-card relative overflow-hidden">
+                        <div class="absolute -top-24 -right-24 w-56 h-56 bg-[#C8A2C8] rounded-full blur-3xl opacity-40 pointer-events-none"></div>
+                        <div class="text-center mb-5 relative z-10 flex-shrink-0">
+                            <h2 id="tier-name" class="text-sm font-bold text-[#505050] uppercase tracking-widest">Pro</h2>
+                            <div class="flex justify-center items-end gap-1 mt-1">
+                                <span id="tier-price" class="text-4xl font-black text-[#0A0A0A]">$19.99</span>
+                                <span id="tier-period" class="text-sm text-[#505050] font-medium mb-1.5">/mo</span>
+                            </div>
+                        </div>
+                        
+                        <!-- FEATURES -->
+                        <div class="space-y-5 flex-1 relative z-10 overflow-y-auto pr-1 flex flex-col justify-center no-scrollbar">
+                            <div id="features-list" class="space-y-5"></div>
+                        </div>
+                        
+                        <div id="tier-note" class="text-center h-4 mt-3 mb-1 text-[10px] font-bold text-[#7900FF] fade-text tracking-wide"></div>
+                        <button id="cta-btn" class="w-full mt-2 py-4 rounded-xl bg-gradient-to-r from-[#7900FF] to-[#5A00CC] text-white font-bold text-sm shadow-lg shadow-purple-900/20 hover:scale-[1.02] transition-transform active:scale-95 flex-shrink-0">
+                            Go Limitless with Pro
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sticky Bottom Button -->
+        <div class="absolute bottom-6 w-full px-6 z-50 transition-all duration-300 flex flex-col items-center gap-3" id="nav-btn-container">
+            <button onclick="handleMainAction()" class="main-btn shadow-xl shadow-purple-900/10" id="navBtnText">Get Started</button>
+            <button onclick="nextSlide()" id="skipBtn" class="text-xs font-medium text-gray-500 transition-colors underline decoration-gray-400 underline-offset-2 hidden">I prefer not to share my details</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        //  APP CONFIGURATION (EDIT IMAGES HERE)
+        // ==========================================
+        const APP_IMAGES = {
+            // Slide 2: Analysis
+            slide2_messy: "unnamed (1).jpg",  // The photo on the bed
+            slide2_clean: "5Gy2pbqhJyG6F_QCa9Lv9.png",   // The transparent/clean photo
+            
+            // Slide 3: Try-On
+            slide3_user: "Gemini_Generated_Image_nrn7p6nrn7p6nrn7.png", // Original User Photo
+            slide3_cloth: "5Gy2pbqhJyG6F_QCa9Lv9.png",   // The cloth to fly in
+            slide3_result: "Gemini_Generated_Image_i60zxhi60zxhi60z.png" // The final result photo
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Apply images
+            document.getElementById('messyImg').src = APP_IMAGES.slide2_messy;
+            document.getElementById('cleanImgSrc').src = APP_IMAGES.slide2_clean;
+            
+            document.getElementById('userBase').src = APP_IMAGES.slide3_user;
+            document.getElementById('clothCardSrc').src = APP_IMAGES.slide3_cloth;
+            document.getElementById('userResultSrc').src = APP_IMAGES.slide3_result;
+        });
+
+        // --- SLIDER LOGIC ---
+        let currentSlide = 0;
+        const totalSlides = 6;
+        const slider = document.getElementById('slider');
+        const navContainer = document.getElementById('nav-btn-container');
+        const navBtnText = document.getElementById('navBtnText');
+        let tryOnCompleted = false;
+
+        function handleMainAction() {
+            if (currentSlide === 2) {
+                if (!tryOnCompleted) {
+                    triggerTryOnAnim();
+                    navBtnText.innerText = "Visualize..."; 
+                    setTimeout(() => {
+                        navBtnText.innerText = "Continue"; 
+                        tryOnCompleted = true;
+                    }, 1200);
+                    return; 
+                }
+            }
+            nextSlide();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                slider.style.transform = `translateX(-${currentSlide * 16.666}%)`;
+                
+                if (currentSlide === 1) triggerScanAnim();
+
+                // Skip Button Logic
+                const skipBtn = document.getElementById('skipBtn');
+                if (currentSlide === 4) skipBtn.classList.remove('hidden');
+                else skipBtn.classList.add('hidden');
+                
+                if (currentSlide === 0) navBtnText.innerText = "Get Started";
+                else if (currentSlide === 2) {
+                    navBtnText.innerText = "Visualize"; 
+                    tryOnCompleted = false; 
+                }
+                else if (currentSlide === 5) {
+                    navContainer.style.opacity = '0';
+                    navContainer.style.pointerEvents = 'none';
+                }
+                else navBtnText.innerText = "Continue";
+            }
+        }
+
+        // --- USER INFO LOGIC ---
+        function selectGender(btn, gender) {
+            document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        function updateAge(val) {
+            document.getElementById('disp-age').innerText = val;
+        }
+
+        function updateHeight(val) {
+            const cm = parseInt(val);
+            const totalInches = cm / 2.54;
+            const ft = Math.floor(totalInches / 12);
+            const inch = Math.round(totalInches % 12);
+            
+            document.getElementById('disp-height').innerHTML = 
+                `${cm} cm <span class="text-lg text-gray-400 font-bold">/ ${ft}'${inch}"</span>`;
+        }
+
+        function updateWeight(val) {
+            const kg = parseInt(val);
+            const lbs = Math.round(kg * 2.20462);
+            
+            document.getElementById('disp-weight').innerHTML = 
+                `${kg} kg <span class="text-lg text-gray-400 font-bold">/ ${lbs} lbs</span>`;
+        }
+
+        // --- ANIMATIONS ---
+        function triggerScanAnim() {
+            const scanLine = document.getElementById('scanLine');
+            const messyImg = document.getElementById('messyImg');
+            const cleanImg = document.getElementById('cleanImg');
+            const analysisInfo = document.getElementById('analysisInfo');
+            const statsCard = document.getElementById('statsCard');
+
+            setTimeout(() => {
+                scanLine.classList.add('scan-active');
+                setTimeout(() => { messyImg.style.opacity = '0'; cleanImg.classList.remove('opacity-0'); }, 1200);
+                setTimeout(() => { 
+                    analysisInfo.classList.remove('opacity-0');
+                    analysisInfo.classList.remove('translate-y-4');
+                }, 1800);
+                setTimeout(() => { statsCard.classList.remove('opacity-0', 'translate-y-4'); }, 2200);
+            }, 500);
+        }
+
+        function triggerTryOnAnim() {
+            const cloth = document.getElementById('clothCard');
+            const userResult = document.getElementById('userResult');
+            const flash = document.getElementById('flashOverlay');
+
+            cloth.classList.add('cloth-fly-animation');
+            setTimeout(() => { flash.classList.add('flash-active'); }, 600);
+            setTimeout(() => { userResult.classList.remove('opacity-0'); }, 700);
+        }
+
+        // --- PAYWALL LOGIC ---
+        const data = {
+            freemium: {
+                name: 'Free', price: '$0', period: '/forever',
+                ads: { text: 'No', color: 'text-red-500 bg-red-100' },
+                wardrobe: { text: '50 Items', width: '10%', color: 'bg-gray-400' },
+                tryon: { text: '3 Credits', width: '3%', color: 'bg-gray-400' },
+                analysis: { text: '20 Credits', width: '6%', color: 'bg-gray-400' },
+                stylist: { text: '30 Credits', width: '10%', color: 'bg-gray-400' },
+                note: '',
+                btnText: 'Continue for Free',
+                btnClass: 'bg-[#FFFFFF] text-[#505050] border border-[#E0E0E0] shadow-none'
+            },
+            basic: {
+                monthly: { price: '$9.99', period: '/mo' },
+                yearly: { price: '$89.99', period: '/yr' },
+                name: 'Basic',
+                ads: { text: 'Yes', color: 'text-[#005F73] bg-[#00BFFF]/20' },
+                wardrobe: { text: '100 Items', width: '20%', color: 'bg-[#7900FF]' },
+                tryon: { text: '50 /mo', width: '50%', color: 'bg-[#00BFFF]' },
+                analysis: { text: '100 /mo', width: '33%', color: 'bg-[#5A00CC]' },
+                stylist: { text: '200 /mo', width: '66%', color: 'bg-[#005F73]' },
+                note: '',
+                btnText: 'Select Basic Plan',
+                btnClass: 'bg-[#0A0A0A] text-[#FFFFFF] border-none shadow-xl'
+            },
+            pro: {
+                monthly: { price: '$19.99', period: '/mo' },
+                yearly: { price: '$179.99', period: '/yr' },
+                name: 'Pro',
+                ads: { text: 'Yes', color: 'text-[#005F73] bg-[#00BFFF]/20' },
+                wardrobe: { text: 'Unlimited', width: '100%', color: 'bg-[#7900FF]' },
+                tryon: { text: '100 /mo', width: '100%', color: 'bg-[#00BFFF]' },
+                analysis: { text: '300 /mo', width: '100%', color: 'bg-[#5A00CC]' },
+                stylist: { text: '300 /mo', width: '100%', color: 'bg-[#005F73]' },
+                note: '✨ Includes Daily Auto-Outfits (Weather + Calendar)',
+                btnText: 'Go Limitless with Pro',
+                btnClass: 'bg-gradient-to-r from-[#7900FF] to-[#5A00CC] text-white border-none shadow-purple-200'
+            }
+        };
+
+        let currentTier = 'pro';
+        let currentBilling = 'monthly';
+
+        function renderFeatures() {
+            const container = document.getElementById('features-list');
+            container.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <div class="icon-box text-red-500" id="icon-ads">🚫</div>
+                    <div class="flex-1 flex justify-between items-center">
+                        <span class="text-xs font-bold text-[#505050]">Ad-Free Experience</span>
+                        <span id="feat-ads"></span>
+                    </div>
+                </div>
+                ${['Wardrobe Limit', 'Virtual Try-On', 'Clothing Analysis', 'AI Outfit Suggestions'].map((name, i) => {
+                    const keys = ['wardrobe', 'tryon', 'analysis', 'stylist'];
+                    const icons = ['👚', '🪄', '🔍', '✨'];
+                    const colors = ['text-[#7900FF]', 'text-[#00BFFF]', 'text-[#5A00CC]', 'text-[#005F73]'];
+                    return `
+                    <div class="flex items-start gap-4">
+                        <div class="icon-box ${colors[i]}">${icons[i]}</div>
+                        <div class="flex-1">
+                            <div class="flex justify-between text-xs font-bold text-[#505050] mb-1">
+                                <span>${name}</span>
+                                <span id="feat-${keys[i]}-text"></span>
+                            </div>
+                            <div class="progress-bg">
+                                <div id="feat-${keys[i]}-bar" class="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            `;
+        }
+
+        function switchTier(tier) { currentTier = tier; updateUI(); }
+        function setBilling(billing) { currentBilling = billing; updateUI(); }
+
+        function updateUI() {
+            ['freemium', 'basic', 'pro'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === currentTier) { btn.classList.remove('inactive'); btn.classList.add('active'); } 
+                else { btn.classList.add('inactive'); btn.classList.remove('active'); }
+            });
+
+            const btnMonthly = document.getElementById('btn-monthly');
+            const btnYearly = document.getElementById('btn-yearly');
+            if (currentBilling === 'monthly') {
+                btnMonthly.classList.add('bg-[#FFFFFF]', 'text-[#7900FF]'); btnMonthly.classList.remove('text-[#505050]');
+                btnYearly.classList.remove('bg-[#FFFFFF]', 'text-[#7900FF]'); btnYearly.classList.add('text-[#505050]');
+            } else {
+                btnYearly.classList.add('bg-[#FFFFFF]', 'text-[#7900FF]'); btnYearly.classList.remove('text-[#505050]');
+                btnMonthly.classList.remove('bg-[#FFFFFF]', 'text-[#7900FF]'); btnMonthly.classList.add('text-[#505050]');
+            }
+
+            const tierData = data[currentTier];
+            let price = (currentTier === 'freemium') ? tierData.price : tierData[currentBilling].price;
+            let period = (currentTier === 'freemium') ? tierData.period : tierData[currentBilling].period;
+
+            const card = document.getElementById('card-container');
+            const noteEl = document.getElementById('tier-note');
+            // Subtle flash for update
+            card.style.opacity = '0.9'; noteEl.style.opacity = '0';
+
+            setTimeout(() => {
+                document.getElementById('tier-name').textContent = tierData.name;
+                document.getElementById('tier-price').textContent = price;
+                document.getElementById('tier-period').textContent = period;
+                noteEl.textContent = tierData.note;
+
+                const ads = document.getElementById('feat-ads');
+                ads.textContent = tierData.ads.text;
+                ads.className = `text-[10px] font-bold px-2 py-0.5 rounded-full ${tierData.ads.color}`;
+                
+                const adIcon = document.getElementById('icon-ads');
+                if(currentTier === 'freemium') { adIcon.className = "icon-box text-red-500"; } 
+                else { adIcon.className = "icon-box text-green-500"; }
+
+                ['wardrobe', 'tryon', 'analysis', 'stylist'].forEach(key => {
+                    document.getElementById(`feat-${key}-text`).textContent = tierData[key].text;
+                    const bar = document.getElementById(`feat-${key}-bar`);
+                    bar.style.width = tierData[key].width;
+                    bar.className = `progress-fill ${tierData[key].color}`;
+                });
+
+                const btn = document.getElementById('cta-btn');
+                btn.textContent = tierData.btnText;
+                btn.className = `w-full mt-2 py-4 rounded-xl font-bold text-sm transition-all flex-shrink-0 ${tierData.btnClass}`;
+
+                card.style.opacity = '1'; noteEl.style.opacity = '1';
+            }, 100);
+        }
+
+        renderFeatures();
+        updateUI();
+
+    </script>
+</body>
+</html>
