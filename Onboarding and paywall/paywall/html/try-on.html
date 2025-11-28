@@ -155,12 +155,12 @@
             <div class="space-y-6 mb-8">
                 
                 <!-- Pack 1 (Small) -->
-                <div class="glass-card rounded-3xl p-4 flex items-center gap-4 cursor-pointer group" onclick="selectPack('pack1')">
+                <div id="card-pack1" class="glass-card rounded-3xl p-4 flex items-center gap-4 cursor-pointer group" onclick="selectPack('pack1')">
                     <div class="check-circle"></div>
                     <div class="flex-1">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-[#0A0A0A] text-lg">10 Try-Ons</span>
-                            <span class="font-bold text-[#0A0A0A] text-lg">$2.99</span>
+                            <span class="title-text font-bold text-[#0A0A0A] text-lg">10 Try-Ons</span>
+                            <span class="price-text font-bold text-[#0A0A0A] text-lg">$2.99</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <p class="text-xs text-[#505050] font-medium">Quick style check</p>
@@ -174,14 +174,14 @@
                     <div class="absolute -top-3 right-4 bg-[#7900FF] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg border-2 border-[#F5F5F7] z-30">
                         BEST VALUE
                     </div>
-                    <div class="glass-card selected rounded-3xl p-4 flex items-center gap-4 relative z-10">
+                    <div id="card-pack2" class="glass-card selected rounded-3xl p-4 flex items-center gap-4 relative z-10">
                         <div class="shimmer"></div>
                         <div class="check-circle z-20"></div>
                         <div class="flex-1 z-20">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-[#7900FF] text-xl">30 Try-Ons</span>
+                                <span class="title-text font-bold text-[#7900FF] text-xl">30 Try-Ons</span>
                                 <div class="flex flex-col items-end">
-                                    <span class="font-bold text-[#7900FF] text-xl">$5.99</span>
+                                    <span class="price-text font-bold text-[#7900FF] text-xl">$5.99</span>
                                 </div>
                             </div>
                             <div class="flex justify-between items-center">
@@ -222,14 +222,36 @@
 
     <script>
         function selectPack(packId) {
-            const cards = document.querySelectorAll('.glass-card');
             const btn = document.getElementById('purchaseBtn');
+            const card1 = document.getElementById('card-pack1');
+            const card2 = document.getElementById('card-pack2');
+            
+            // Helper to set state
+            const setCardState = (card, isSelected) => {
+                if (isSelected) {
+                    card.classList.add('selected');
+                    // Change text to purple
+                    card.querySelectorAll('.title-text, .price-text').forEach(el => {
+                        el.classList.remove('text-[#0A0A0A]');
+                        el.classList.add('text-[#7900FF]');
+                    });
+                } else {
+                    card.classList.remove('selected');
+                    // Change text to black
+                    card.querySelectorAll('.title-text, .price-text').forEach(el => {
+                        el.classList.remove('text-[#7900FF]');
+                        el.classList.add('text-[#0A0A0A]');
+                    });
+                }
+            };
 
             if (packId === 'pack1') {
-                // Visual toggle logic is handled by framework in real app
-                // Here we just simulate for the selected card
+                setCardState(card1, true);
+                setCardState(card2, false);
                 btn.innerText = "Purchase 10 Try-Ons - $2.99";
             } else {
+                setCardState(card1, false);
+                setCardState(card2, true);
                 btn.innerText = "Purchase 30 Try-Ons - $5.99";
             }
         }

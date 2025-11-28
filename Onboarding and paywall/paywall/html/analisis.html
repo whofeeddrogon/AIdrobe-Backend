@@ -156,12 +156,12 @@
                 
                 <!-- Pack 1 (Small) -->
                 <!-- Wrapper for positioning if needed later, currently standard -->
-                <div class="glass-card rounded-3xl p-4 flex items-center gap-4 cursor-pointer group" onclick="selectPack('pack1')">
+                <div id="card-pack1" class="glass-card rounded-3xl p-4 flex items-center gap-4 cursor-pointer group" onclick="selectPack('pack1')">
                     <div class="check-circle"></div>
                     <div class="flex-1">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-[#0A0A0A] text-lg">10 Credits</span>
-                            <span class="font-bold text-[#0A0A0A] text-lg">$1.99</span>
+                            <span class="title-text font-bold text-[#0A0A0A] text-lg">10 Credits</span>
+                            <span class="price-text font-bold text-[#0A0A0A] text-lg">$1.99</span>
                         </div>
                         <div class="flex justify-between items-center">
                             <p class="text-xs text-[#505050] font-medium">Quick top-up</p>
@@ -179,14 +179,14 @@
                     </div>
 
                     <!-- CARD -->
-                    <div class="glass-card selected rounded-3xl p-4 flex items-center gap-4 relative z-10">
+                    <div id="card-pack2" class="glass-card selected rounded-3xl p-4 flex items-center gap-4 relative z-10">
                         <div class="shimmer"></div>
                         <div class="check-circle z-20"></div>
                         <div class="flex-1 z-20">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-[#7900FF] text-xl">50 Credits</span>
+                                <span class="title-text font-bold text-[#7900FF] text-xl">50 Credits</span>
                                 <div class="flex flex-col items-end">
-                                    <span class="font-bold text-[#7900FF] text-xl">$4.99</span>
+                                    <span class="price-text font-bold text-[#7900FF] text-xl">$4.99</span>
                                 </div>
                             </div>
                             <div class="flex justify-between items-center">
@@ -227,19 +227,36 @@
 
     <script>
         function selectPack(packId) {
-            // Logic handled by SwiftUI in real app, visual toggle here
-            const cards = document.querySelectorAll('.glass-card');
             const btn = document.getElementById('purchaseBtn');
+            const card1 = document.getElementById('card-pack1');
+            const card2 = document.getElementById('card-pack2');
+            
+            // Helper to set state
+            const setCardState = (card, isSelected) => {
+                if (isSelected) {
+                    card.classList.add('selected');
+                    // Change text to purple
+                    card.querySelectorAll('.title-text, .price-text').forEach(el => {
+                        el.classList.remove('text-[#0A0A0A]');
+                        el.classList.add('text-[#7900FF]');
+                    });
+                } else {
+                    card.classList.remove('selected');
+                    // Change text to black
+                    card.querySelectorAll('.title-text, .price-text').forEach(el => {
+                        el.classList.remove('text-[#7900FF]');
+                        el.classList.add('text-[#0A0A0A]');
+                    });
+                }
+            };
 
             if (packId === 'pack1') {
-                // Manually toggling classes for demo clarity
-                // Ideally this would be dynamic, but since structure differs (badge), we handle visual focus
-                // For this prototype, Pack 2 is hardcoded as 'best value' visually.
-                
-                // In a real implementation, the badge logic would be dynamic.
-                // Here we just update the button text to show interaction.
+                setCardState(card1, true);
+                setCardState(card2, false);
                 btn.innerText = "Purchase 10 Credits - $1.99";
             } else {
+                setCardState(card1, false);
+                setCardState(card2, true);
                 btn.innerText = "Purchase 50 Credits - $4.99";
             }
         }
