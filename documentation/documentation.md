@@ -124,8 +124,8 @@ Abonelik istemeyen veya kotası dolan kullanıcılar için yüksek kâr marjlı 
 | **50 Ek Kıyafet Analizi** | $4.99 | ~$4.24 | $0.80 | **$3.44** | %81 |
 | **10 Ek Sanal Deneme** | $2.99 | ~$2.54 | $0.40 | **$2.14** | %84 |
 | **30 Ek Sanal Deneme** | $5.99 | ~$5.09 | $1.20 | **$3.89** | %76 |
-| **50 Ek Kombin Önerisi** | $1.99 | ~$1.69 | $0.05 | **$1.64** | %97 |
-| **100 Ek Kombin Önerisi** | $2.99 | ~$2.54 | $0.10 | **$2.44** | %96 |
+| **20 Ek Kombin Önerisi** | $1.99 | ~$1.69 | $0.02 | **$1.67** | %98 |
+| **50 Ek Kombin Önerisi** | $2.99 | ~$2.54 | $0.05 | **$2.49** | %98 |
 
 ## **4. API Endpoint Detayları (Cloud Functions)**
 
