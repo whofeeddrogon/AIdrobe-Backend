@@ -3,6 +3,8 @@ import axios, { AxiosError } from "axios";
 import { falKey, runtimeOptions } from "../config";
 import { checkOrUpdateQuota } from "../utils/quota";
 import { TryOnRequestData, VirtualTryOnResponse } from "../types";
+import { getRemoteConfigValue } from "../utils/remoteConfig";
+import { DEFAULT_TRYON_PROMPT } from "../utils/constants";
 
 /**
  * 2. SANAL DENEME
@@ -36,23 +38,7 @@ export const virtualTryOn = functions
 			// 2. Nano Banana: 2 kıyafet VEYA model_type='nano-banana'
 			// 3. Legacy: Diğer durumlar (Tek kıyafet)
 
-			const proPrompt = `**GENERATE ONLY A SINGLE, HIGH-FIDELITY IMAGE.**
-
-                            **PRIMARY TASK: Perform a Photorealistic Virtual Try-On using ALL provided garment references.** The subject from the main input image (referred to as the 'input_image' or 'pose_image') will receive the new clothing.
-
-                            **CRITICAL PRESERVATION RULES (from 'input_image' ONLY):**
-                            1.  **Facial Identity & Expression:** The subject's face and facial expression from the 'input_image' **MUST remain absolutely unchanged**.
-                            2.  **Body Pose & Positioning:** The subject's exact body pose, hand placement, and overall body structure from the 'input_image' **MUST be strictly preserved**.
-                            3.  **Background Environment:** The **ENTIRE background environment of the 'input_image' MUST NOT be altered or replaced in any way.** It must remain exactly as it is.
-                            4.  **Existing Unreferenced Garments:** Any clothing or accessories already on the subject in the 'input_image' that were **NOT** supplied as separate reference garments **MUST be preserved exactly as they are**.
-
-                            **CLOTHING INTEGRATION & LAYERING RULES (from reference garments):**
-                            1.  **Full Integration:** You MUST use **EACH and EVERY provided reference garment** and integrate them onto the subject.
-                            2.  **Sequential Layering:** Systematically process and integrate these garments in a clear dimensional sequence. Prioritize outermost layers first (e.g., coat, jacket), then mid-layers (e.g., shirt, sweater), and finally innermost layers or accessories (e.g., t-shirt, tie) to prevent omission or confusion.
-                            3.  **Old Garment Removal:** Completely erase all remnants of the previous clothing **ONLY for the areas where new garments are being placed**.
-                            4.  **Realism & Blending:** Ensure seamless, realistic integration with natural fabric drape, texture, and fit according to the subject's body shape. The new garments must flawlessly match the 'input_image' scene's original lighting, shadows, and color grading.
-
-                            **FINAL OUTPUT QUALITY:** The final image must be high-fidelity and appear as an imperceptible, photorealistic edit.`;
+            const proPrompt = await getRemoteConfigValue("tryon_pro_prompt", DEFAULT_TRYON_PROMPT);
 
 			// Model seçimi ve mantığı
 			// 1. Nano Banana Pro: 3+ kıyafet VEYA model_type='nano-banana-pro'

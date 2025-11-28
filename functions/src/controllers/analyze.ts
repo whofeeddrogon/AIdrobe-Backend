@@ -3,6 +3,8 @@ import axios from "axios";
 import { falKey, runtimeOptions } from "../config";
 import { checkOrUpdateQuota } from "../utils/quota";
 import { extractJson } from "../utils/helpers";
+import { getRemoteConfigValue } from "../utils/remoteConfig";
+import { DEFAULT_CLOTHING_ANALYSIS_PROMPT } from "../utils/constants";
 import { AnalyzeRequestData, AnalyzeClothingImageResponse } from "../types";
 
 /**
@@ -31,31 +33,12 @@ export const analyzeClothingImage = functions
           "Hat", "Bag", "Belt", "Jewelry", "Scarf", "Sunglasses",
         ].join(", ");
 
-        const prompt = `
-          Analyze the main clothing item in this image. Your response MUST be a valid JSON object.
-          The JSON object should have three keys: "category", "description", and "name".
-
-          Instructions for the model:
-          1.  For the "category" value, you MUST choose the most appropriate category ONLY from this list: [${categoryList}].
-          2.  For the "description" value, provide a single, comprehensive paragraph in English. This paragraph must describe the item's physical details (material, fit, color, patterns) AND its context (formality level, suitable occasions, and appropriate weather conditions).
-          3.  For the "name" value, provide a short, concise title for the item (e.g., "Red Cotton T-Shirt", "Blue Denim Jeans", "Floral Summer Dress"). It should be 2-3 words long. DO NOT use quotation marks ("") within the name.
-          4.  CRITICAL RULE: Your description must ONLY be about the garment. DO NOT mention the background, the surface it is on, or how it is positioned (e.g., "laid flat", "on a hanger"). Focus strictly on the item's own features.
-          5.  IMPORTANT: When describing text printed on the clothing, DO NOT use quotation marks (""). Instead, write the text directly without quotes. For example, if a shirt says "JUST DO IT", write: The shirt displays the text JUST DO IT in bold letters. WRONG: "The t-shirt has the phrase "GOOD VIBES ONLY" printed", CORRECT: "The t-shirt has the phrase GOOD VIBES ONLY printed"
-
-          Example JSON response:
-          {
-            "category": "Shirt",
-            "description": "A white, long-sleeved shirt made of a smooth, possibly cotton material. It features a classic collar, a button-down front, and a regular fit. This piece is suitable for casual or smart casual occasions in mild weather.",
-            "name": "White Long-Sleeved Shirt"
-          }
-          
-          Example with text on clothing:
-          {
-            "category": "T-Shirt",
-            "description": "A black cotton t-shirt with the text RIDE ME NUTS printed on the front in bold white letters. The shirt has a crew neck and short sleeves, suitable for casual wear in warm weather.",
-            "name": "Black Graphic T-Shirt"
-          }
-        `;
+        // Remote Config'den prompt'u çek (Cache mekanizmalı)
+        // Eğer Remote Config'de "clothing_analysis_prompt" tanımlı değilse defaultPrompt kullanılır.
+        let prompt = await getRemoteConfigValue("clothing_analysis_prompt", DEFAULT_CLOTHING_ANALYSIS_PROMPT);
+        
+        // Placeholder'ı gerçek kategori listesiyle değiştir
+        prompt = prompt.replace("{{CATEGORY_LIST}}", categoryList);
         
         const apiKey = falKey.value();
 
