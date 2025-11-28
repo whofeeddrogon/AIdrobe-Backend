@@ -2,6 +2,7 @@ import * as functions from "firebase-functions/v1";
 import axios from "axios";
 import { falKey, runtimeOptions } from "../config";
 import { checkOrUpdateQuota } from "../utils/quota";
+import { extractJson } from "../utils/helpers";
 import { AnalyzeRequestData, AnalyzeClothingImageResponse } from "../types";
 
 /**
@@ -90,13 +91,7 @@ export const analyzeClothingImage = functions
         
         const llmOutput: string = response.data?.output ?? "{}";
         try {
-            const jsonMatch = llmOutput.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-              throw new Error("Cevapta geçerli bir JSON objesi bulunamadı.");
-            }
-
-            let jsonString = jsonMatch[0];
-            const parsedJson = JSON.parse(jsonString);
+            const parsedJson = extractJson(llmOutput);
 
             const result = {
               category: parsedJson.category ?? "",
