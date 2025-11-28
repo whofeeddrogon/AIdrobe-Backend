@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TryOnDarkView: View {
+struct AnalisisDarkView: View {
     @State private var selectedPack: String = "pack2"
     
     var body: some View {
@@ -54,12 +54,27 @@ struct TryOnDarkView: View {
                                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                 )
                                 .overlay(
-                                    Text("👕")
+                                    Text("🔍")
                                         .font(.system(size: 40))
                                 )
                                 .offset(y: -10)
                             
                             // Sparkle 1
+                            Circle()
+                                .fill(LinearGradient(gradient: Gradient(colors: [Color(hex: "202020"), Color(hex: "151515")]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(width: 40, height: 40)
+                                .shadow(color: Color.black.opacity(0.5), radius: 8, x: 0, y: 5)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                )
+                                .overlay(
+                                    Text("✨")
+                                        .font(.system(size: 20))
+                                )
+                                .offset(x: -80, y: 60)
+                            
+                            // Sparkle 2
                             Circle()
                                 .fill(LinearGradient(gradient: Gradient(colors: [Color(hex: "202020"), Color(hex: "151515")]), startPoint: .topLeading, endPoint: .bottomTrailing))
                                 .frame(width: 50, height: 50)
@@ -69,37 +84,22 @@ struct TryOnDarkView: View {
                                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                 )
                                 .overlay(
-                                    Text("👗")
+                                    Text("📊")
                                         .font(.system(size: 24))
                                 )
-                                .offset(x: -70, y: 50)
-                            
-                            // Sparkle 2
-                            Circle()
-                                .fill(LinearGradient(gradient: Gradient(colors: [Color(hex: "202020"), Color(hex: "151515")]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .frame(width: 60, height: 60)
-                                .shadow(color: Color.black.opacity(0.5), radius: 8, x: 0, y: 5)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                                )
-                                .overlay(
-                                    Text("🧥")
-                                        .font(.system(size: 28))
-                                )
-                                .offset(x: 60, y: 40)
+                                .offset(x: 70, y: 50)
                         }
                         .frame(height: 220)
                         .padding(.bottom, 10)
                         
                         // Header
                         VStack(spacing: 8) {
-                            Text("Out of Try-Ons?")
+                            Text("Need More Analysis?")
                                 .font(.system(size: 30, weight: .black))
                                 .foregroundColor(Color.white)
                                 .multilineTextAlignment(.center)
                             
-                            Text("Visualize more outfits on yourself instantly.")
+                            Text("Get detailed insights on your outfits instantly.")
                                 .font(.system(size: 14))
                                 .foregroundColor(Color(hex: "A0A0A0"))
                                 .multilineTextAlignment(.center)
@@ -133,21 +133,21 @@ struct TryOnDarkView: View {
                                     
                                     VStack(alignment: .leading, spacing: 4) {
                                         HStack {
-                                            Text("10 Try-Ons")
+                                            Text("10 Analysis")
                                                 .font(.system(size: 18, weight: .bold))
-                                                .foregroundColor(Color.white)
+                                                .foregroundColor(selectedPack == "pack1" ? Color(hex: "7900FF") : Color.white)
                                             Spacer()
-                                            Text("$2.99")
+                                            Text("$1.99")
                                                 .font(.system(size: 18, weight: .bold))
-                                                .foregroundColor(Color.white)
+                                                .foregroundColor(selectedPack == "pack1" ? Color(hex: "7900FF") : Color.white)
                                         }
                                         
                                         HStack {
-                                            Text("Quick style check")
+                                            Text("Quick check-up")
                                                 .font(.system(size: 12, weight: .medium))
                                                 .foregroundColor(Color(hex: "A0A0A0"))
                                             Spacer()
-                                            Text("$0.30 / credit")
+                                            Text("$0.20 / item")
                                                 .font(.system(size: 10))
                                                 .foregroundColor(Color.gray)
                                         }
@@ -208,27 +208,27 @@ struct TryOnDarkView: View {
                                         
                                         VStack(alignment: .leading, spacing: 4) {
                                             HStack {
-                                                Text("30 Try-Ons")
+                                                Text("30 Analysis")
                                                     .font(.system(size: 20, weight: .bold))
                                                     .foregroundColor(selectedPack == "pack2" ? Color(hex: "7900FF") : Color.white)
                                                 Spacer()
-                                                Text("$5.99")
+                                                Text("$3.99")
                                                     .font(.system(size: 20, weight: .bold))
                                                     .foregroundColor(selectedPack == "pack2" ? Color(hex: "7900FF") : Color.white)
                                             }
                                             
                                             HStack {
-                                                Text("Full wardrobe refresh")
+                                                Text("Deep wardrobe scan")
                                                     .font(.system(size: 12, weight: .medium))
                                                     .foregroundColor(Color(hex: "A0A0A0"))
                                                 Spacer()
                                                 HStack(spacing: 8) {
-                                                    Text("$8.99")
+                                                    Text("$5.99")
                                                         .font(.system(size: 10))
                                                         .foregroundColor(Color.gray)
                                                         .strikethrough()
                                                     
-                                                    Text("$0.20 / credit")
+                                                    Text("$0.13 / item")
                                                         .font(.system(size: 10, weight: .bold))
                                                         .foregroundColor(Color.green)
                                                         .padding(.horizontal, 6)
@@ -267,7 +267,7 @@ struct TryOnDarkView: View {
                     Button(action: {
                         // Purchase action
                     }) {
-                        Text(selectedPack == "pack1" ? "Purchase 10 Try-Ons - $2.99" : "Purchase 30 Try-Ons - $5.99")
+                        Text(selectedPack == "pack1" ? "Purchase 10 Analysis - $1.99" : "Purchase 30 Analysis - $3.99")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -288,14 +288,14 @@ struct TryOnDarkView: View {
                             .overlay(Text("💎").font(.system(size: 20)))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Need more looks?")
+                            Text("Want unlimited insights?")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(Color.white)
                             
                             Text("Upgrade to Pro and get ")
                                 .font(.system(size: 10))
                                 .foregroundColor(Color(hex: "A0A0A0"))
-                            + Text("100 try-ons monthly")
+                            + Text("300 analysis monthly")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(Color(hex: "7900FF"))
                             + Text(".")
@@ -334,8 +334,8 @@ struct TryOnDarkView: View {
     }
 }
 
-struct TryOnDarkView_Previews: PreviewProvider {
+struct AnalisisDarkView_Previews: PreviewProvider {
     static var previews: some View {
-        TryOnDarkView()
+        AnalisisDarkView()
     }
 }

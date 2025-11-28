@@ -287,7 +287,7 @@ struct PaywallView: View {
     }
     
     var adsColor: Color {
-        return currentTier == "freemium" ? .red : Color(hex: "005F73")
+        return currentTier == "freemium" ? .red : Color(hex: "00E5FF")
     }
     
     var wardrobeText: String {

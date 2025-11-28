@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIdrobe Dark Mode Fixed</title>
+    <title>AIdrobe Try-On Top-Up Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display-swap" rel="stylesheet">
     <style>
@@ -29,8 +29,8 @@
             z-index: 0; pointer-events: none;
         }
 
-        /* --- 3D IDEA ILLUSTRATION --- */
-        .idea-scene {
+        /* --- 3D CLOTH SCENE --- */
+        .cloth-scene {
             position: relative; width: 100%; height: 220px;
             display: flex; justify-content: center; align-items: center;
             perspective: 800px; z-index: 10;
@@ -46,14 +46,14 @@
         }
         
         .float-main { z-index: 10; transform: translateZ(20px); }
-        .float-sparkle-1 { 
-            width: 40px; height: 40px; font-size: 1.2rem;
-            left: 80px; top: 60px; z-index: 5; opacity: 0.8;
+        .float-small-1 { 
+            width: 50px; height: 50px; font-size: 1.5rem;
+            left: 70px; top: 50px; z-index: 5; opacity: 0.8;
             animation: floatSmall 5s ease-in-out infinite 1s;
         }
-        .float-sparkle-2 { 
-            width: 50px; height: 50px; font-size: 1.5rem;
-            right: 70px; bottom: 50px; z-index: 8;
+        .float-small-2 { 
+            width: 60px; height: 60px; font-size: 1.8rem;
+            right: 60px; bottom: 40px; z-index: 8;
             animation: floatSmall 6s ease-in-out infinite 0.5s;
         }
 
@@ -66,7 +66,7 @@
             50% { transform: translateY(-8px); }
         }
 
-        /* --- GLASS CARDS --- */
+        /* --- GLASS CARDS (Dark Mode) --- */
         .glass-card {
             background: rgba(30, 30, 30, 0.6);
             backdrop-filter: blur(12px);
@@ -77,22 +77,19 @@
         }
         .glass-card:hover { transform: translateY(-2px); background: rgba(40, 40, 40, 0.7); }
 
-        /* ACTIVE STATE (Purple Border + Lighter BG) */
+        /* Selected State */
         .glass-card.selected {
-            background: rgba(50, 40, 60, 0.9); /* Slight purple tint in bg */
-            border: 2px solid #9700FF; /* Brighter Purple Border */
+            background: rgba(50, 40, 60, 0.9);
+            border: 2px solid #9700FF;
             box-shadow: 0 0 20px rgba(151, 0, 255, 0.2);
         }
         
-        /* Check Circle */
         .check-circle {
             width: 20px; height: 20px; border-radius: 50%;
             border: 2px solid #404040; display: flex; align-items: center; justify-content: center;
             transition: all 0.2s;
         }
-        .glass-card.selected .check-circle { 
-            background: #9700FF; border-color: #9700FF; 
-        }
+        .glass-card.selected .check-circle { background: #9700FF; border-color: #9700FF; }
         .check-circle::after {
             content: ""; width: 8px; height: 8px; background: white; border-radius: 50%;
             transform: scale(0); transition: transform 0.2s;
@@ -109,7 +106,7 @@
         .glass-card.selected .shimmer { animation: shimmerMove 2s infinite; }
         @keyframes shimmerMove { 0% { transform: translateX(-150%); } 100% { transform: translateX(150%); } }
 
-        /* Shiny Text Effect for Price */
+        /* Shiny Price Text */
         .text-shiny {
             background: linear-gradient(to bottom right, #D8B4FE, #FFFFFF);
             -webkit-background-clip: text;
@@ -123,11 +120,12 @@
             color: white; font-weight: 700; 
             border-radius: 20px; padding: 18px; width: 100%; text-align: center;
             box-shadow: 0 10px 25px rgba(121, 0, 255, 0.3);
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             border: 1px solid rgba(255,255,255,0.1);
         }
         .main-btn:active { transform: scale(0.97); }
 
+        /* Upsell Box */
         .upsell-box {
             background: linear-gradient(to right, rgba(121,0,255,0.1), rgba(0,191,255,0.05));
             border: 1px solid rgba(121,0,255,0.2);
@@ -147,16 +145,18 @@
 
         <div class="flex-1 px-6 pt-16 pb-8 flex flex-col relative z-10 overflow-y-auto no-scrollbar">
             
-            <div class="idea-scene">
-                <div class="float-icon float-main">💡</div>
-                <div class="float-icon float-sparkle-1">✨</div>
-                <div class="float-icon float-sparkle-2">💭</div>
+            <!-- 3D CLOTH SCENE -->
+            <div class="cloth-scene">
+                <div class="float-icon float-main">👕</div>
+                <div class="float-icon float-small-1">👗</div>
+                <div class="float-icon float-small-2">🧥</div>
             </div>
 
+            <!-- Header -->
             <div class="text-center mb-8">
-                <h1 class="text-3xl font-black text-white mb-2 leading-tight">Need Inspiration?</h1>
+                <h1 class="text-3xl font-black text-white mb-2 leading-tight">Out of Try-Ons?</h1>
                 <p class="text-[#A0A0A0] text-sm px-4 leading-relaxed">
-                    Get more smart outfit suggestions from your AI stylist.
+                    Visualize more outfits on yourself instantly.
                 </p>
             </div>
 
@@ -164,45 +164,41 @@
             <div class="space-y-6 mb-8">
                 
                 <!-- Pack 1 (Small) -->
-                <!-- ID Added for JS Selection -->
                 <div id="card-pack1" class="glass-card rounded-3xl p-4 flex items-center gap-4 cursor-pointer group" onclick="selectPack('pack1')">
                     <div class="check-circle"></div>
                     <div class="flex-1">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-white text-lg">20 Credits</span>
-                            <!-- Lighter, Shiny Purple -->
-                            <span class="font-bold text-lg text-shiny">$0.99</span>
+                            <span class="font-bold text-white text-lg title-text">10 Try-Ons</span>
+                            <span class="font-bold text-lg text-shiny">$2.99</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <p class="text-xs text-[#A0A0A0] font-medium">Quick inspiration</p>
-                            <p class="text-[10px] text-[#737373]">$0.05 / idea</p>
+                            <p class="text-xs text-[#A0A0A0] font-medium">Quick style check</p>
+                            <p class="text-[10px] text-[#737373]">$0.30 / look</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Pack 2 (Large - Selected by default) -->
+                <!-- Pack 2 (Large - Selected) -->
                 <div class="relative cursor-pointer group" onclick="selectPack('pack2')">
                     <div class="absolute -top-3 right-4 bg-[#7900FF] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg border-2 border-[#121212] z-30">
                         BEST VALUE
                     </div>
                     
-                    <!-- ID Added for JS Selection -->
                     <div id="card-pack2" class="glass-card selected rounded-3xl p-4 flex items-center gap-4 relative z-10">
                         <div class="shimmer"></div>
                         <div class="check-circle z-20"></div>
                         <div class="flex-1 z-20">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-[#7900FF] text-xl">50 Credits</span>
+                                <span class="font-bold text-[#7900FF] text-xl title-text">30 Try-Ons</span>
                                 <div class="flex flex-col items-end">
-                                    <!-- Lighter, Shiny Purple -->
-                                    <span class="font-bold text-xl text-shiny">$1.99</span>
+                                    <span class="font-bold text-xl text-shiny">$5.99</span>
                                 </div>
                             </div>
                             <div class="flex justify-between items-center">
-                                <p class="text-xs text-[#E0E0E0] font-medium">Weekly looks sorted</p>
+                                <p class="text-xs text-[#E0E0E0] font-medium">Full wardrobe refresh</p>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[10px] text-[#737373] line-through">$2.49</span>
-                                    <span class="text-[10px] font-bold text-[#00E5FF] bg-[#00E5FF]/10 px-1.5 py-0.5 rounded border border-[#00E5FF]/20">$0.04 / idea</span>
+                                    <span class="text-[10px] text-[#737373] line-through">$8.99</span>
+                                    <span class="text-[10px] font-bold text-[#00E5FF] bg-[#00E5FF]/10 px-1.5 py-0.5 rounded border border-[#00E5FF]/20">$0.20 / look</span>
                                 </div>
                             </div>
                         </div>
@@ -211,17 +207,19 @@
 
             </div>
 
+            <!-- Footer Area -->
             <div class="mt-auto">
                 <button class="main-btn mb-6" id="purchaseBtn">
-                    Purchase 50 Credits
+                    Purchase 30 Try-Ons
                 </button>
 
+                <!-- Upsell Box -->
                 <div class="upsell-box rounded-2xl p-4 flex items-center gap-3">
                     <div class="w-10 h-10 bg-[#292929] rounded-full flex items-center justify-center text-xl shadow-sm flex-shrink-0 border border-[#404040]">💎</div>
                     <div class="flex-1">
-                        <p class="text-xs font-bold text-white mb-0.5">Want daily style?</p>
+                        <p class="text-xs font-bold text-white mb-0.5">Need more looks?</p>
                         <p class="text-[10px] text-[#A0A0A0] leading-tight">
-                            Upgrade to Pro and get <span class="font-bold text-[#7900FF]">300 suggestions monthly</span>.
+                            Upgrade to Pro and get <span class="font-bold text-[#7900FF]">100 try-ons monthly</span>.
                         </p>
                     </div>
                     <button class="bg-[#292929] text-white text-[10px] font-bold px-3 py-2 rounded-lg border border-[#404040] hover:bg-[#333]">View Pro</button>
@@ -234,24 +232,35 @@
 
     <script>
         function selectPack(packId) {
-            // 1. Remove selected class from ALL cards
+            // 1. Reset all cards
             document.querySelectorAll('.glass-card').forEach(el => {
                 el.classList.remove('selected');
+                // Reset title color to white
+                const title = el.querySelector('.title-text');
+                if(title) {
+                    title.classList.remove('text-[#7900FF]');
+                    title.classList.add('text-white');
+                }
             });
-
-            // 2. Add selected class to the CLICKED card
-            // Since Pack 2 is inside a wrapper, we target by ID directly to be safe
+            
+            // 2. Set Active
             const targetCard = document.getElementById('card-' + packId);
             if(targetCard) {
                 targetCard.classList.add('selected');
+                // Set title color to purple
+                const title = targetCard.querySelector('.title-text');
+                if(title) {
+                    title.classList.remove('text-white');
+                    title.classList.add('text-[#7900FF]');
+                }
             }
 
-            // 3. Update Button Text
+            // 3. Update Button
             const btn = document.getElementById('purchaseBtn');
             if (packId === 'pack1') {
-                btn.innerText = "Purchase 20 Credits - $0.99";
+                btn.innerText = "Purchase 10 Try-Ons - $2.99";
             } else {
-                btn.innerText = "Purchase 50 Credits - $1.99";
+                btn.innerText = "Purchase 30 Try-Ons - $5.99";
             }
         }
     </script>

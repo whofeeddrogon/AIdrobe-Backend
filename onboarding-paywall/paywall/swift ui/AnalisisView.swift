@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SuggestionView: View {
+struct AnalisisView: View {
     @State private var selectedPack: String = "pack2"
     
     var body: some View {
@@ -51,10 +51,10 @@ struct SuggestionView: View {
                                 .frame(width: 80, height: 80)
                                 .shadow(color: Color.black.opacity(0.1), radius: 12, x: 0, y: 10)
                                 .overlay(
-                                    Text("💡")
+                                    Text("🔍")
                                         .font(.system(size: 40))
                                 )
-                                .offset(y: -10)
+                                .offset(y: -10) // Animation offset would go here
                             
                             // Sparkle 1
                             Circle()
@@ -73,7 +73,7 @@ struct SuggestionView: View {
                                 .frame(width: 50, height: 50)
                                 .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 5)
                                 .overlay(
-                                    Text("💭")
+                                    Text("📊")
                                         .font(.system(size: 24))
                                 )
                                 .offset(x: 70, y: 50)
@@ -83,12 +83,12 @@ struct SuggestionView: View {
                         
                         // Header
                         VStack(spacing: 8) {
-                            Text("Need Inspiration?")
+                            Text("Need More Analysis?")
                                 .font(.system(size: 30, weight: .black))
                                 .foregroundColor(Color(hex: "0A0A0A"))
                                 .multilineTextAlignment(.center)
                             
-                            Text("Get more smart outfit suggestions from your AI stylist.")
+                            Text("Get detailed insights on your outfits instantly.")
                                 .font(.system(size: 14))
                                 .foregroundColor(Color(hex: "505050"))
                                 .multilineTextAlignment(.center)
@@ -122,21 +122,21 @@ struct SuggestionView: View {
                                     
                                     VStack(alignment: .leading, spacing: 4) {
                                         HStack {
-                                            Text("20 Credits")
+                                            Text("10 Analysis")
                                                 .font(.system(size: 18, weight: .bold))
-                                                .foregroundColor(Color(hex: "0A0A0A"))
+                                                .foregroundColor(selectedPack == "pack1" ? Color(hex: "7900FF") : Color(hex: "0A0A0A"))
                                             Spacer()
-                                            Text("$0.99")
+                                            Text("$1.99")
                                                 .font(.system(size: 18, weight: .bold))
-                                                .foregroundColor(Color(hex: "0A0A0A"))
+                                                .foregroundColor(selectedPack == "pack1" ? Color(hex: "7900FF") : Color(hex: "0A0A0A"))
                                         }
                                         
                                         HStack {
-                                            Text("Quick inspiration")
+                                            Text("Quick check-up")
                                                 .font(.system(size: 12, weight: .medium))
                                                 .foregroundColor(Color(hex: "505050"))
                                             Spacer()
-                                            Text("$0.05 / idea")
+                                            Text("$0.20 / item")
                                                 .font(.system(size: 10))
                                                 .foregroundColor(Color.gray)
                                         }
@@ -197,27 +197,27 @@ struct SuggestionView: View {
                                         
                                         VStack(alignment: .leading, spacing: 4) {
                                             HStack {
-                                                Text("50 Credits")
+                                                Text("30 Analysis")
                                                     .font(.system(size: 20, weight: .bold))
                                                     .foregroundColor(selectedPack == "pack2" ? Color(hex: "7900FF") : Color(hex: "0A0A0A"))
                                                 Spacer()
-                                                Text("$1.99")
+                                                Text("$3.99")
                                                     .font(.system(size: 20, weight: .bold))
                                                     .foregroundColor(selectedPack == "pack2" ? Color(hex: "7900FF") : Color(hex: "0A0A0A"))
                                             }
                                             
                                             HStack {
-                                                Text("Weekly looks sorted")
+                                                Text("Deep wardrobe scan")
                                                     .font(.system(size: 12, weight: .medium))
                                                     .foregroundColor(Color(hex: "505050"))
                                                 Spacer()
                                                 HStack(spacing: 8) {
-                                                    Text("$2.49")
+                                                    Text("$5.99")
                                                         .font(.system(size: 10))
                                                         .foregroundColor(Color.gray)
                                                         .strikethrough()
                                                     
-                                                    Text("$0.04 / idea")
+                                                    Text("$0.13 / item")
                                                         .font(.system(size: 10, weight: .bold))
                                                         .foregroundColor(Color.green)
                                                         .padding(.horizontal, 6)
@@ -256,7 +256,7 @@ struct SuggestionView: View {
                     Button(action: {
                         // Purchase action
                     }) {
-                        Text(selectedPack == "pack1" ? "Purchase 20 Credits - $0.99" : "Purchase 50 Credits - $1.99")
+                        Text(selectedPack == "pack1" ? "Purchase 10 Analysis - $1.99" : "Purchase 30 Analysis - $3.99")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -277,14 +277,14 @@ struct SuggestionView: View {
                             .overlay(Text("💎").font(.system(size: 20)))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Want daily style?")
+                            Text("Want unlimited insights?")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(Color(hex: "0A0A0A"))
                             
                             Text("Upgrade to Pro and get ")
                                 .font(.system(size: 10))
                                 .foregroundColor(Color(hex: "505050"))
-                            + Text("300 suggestions monthly")
+                            + Text("300 analysis monthly")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(Color(hex: "7900FF"))
                             + Text(".")
@@ -323,8 +323,36 @@ struct SuggestionView: View {
     }
 }
 
-struct SuggestionView_Previews: PreviewProvider {
+// Helper for Hex Colors
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (1, 1, 1, 0)
+        }
+
+        self.init(
+            .sRGB,
+            red: Double(r) / 255,
+            green: Double(g) / 255,
+            blue:  Double(b) / 255,
+            opacity: Double(a) / 255
+        )
+    }
+}
+
+struct AnalisisView_Previews: PreviewProvider {
     static var previews: some View {
-        SuggestionView()
+        AnalisisView()
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIdrobe Try-On Top-Up Dark</title>
+    <title>AIdrobe Analysis Top-Up Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display-swap" rel="stylesheet">
     <style>
@@ -29,8 +29,8 @@
             z-index: 0; pointer-events: none;
         }
 
-        /* --- 3D CLOTH SCENE --- */
-        .cloth-scene {
+        /* --- 3D ANALYSIS SCENE --- */
+        .scan-scene {
             position: relative; width: 100%; height: 220px;
             display: flex; justify-content: center; align-items: center;
             perspective: 800px; z-index: 10;
@@ -45,16 +45,18 @@
             font-size: 2.5rem; animation: floatMain 4s ease-in-out infinite;
         }
         
-        .float-main { z-index: 10; transform: translateZ(20px); }
+        .float-main { z-index: 10; transform: translateZ(20px); } /* Lightning */
+        
         .float-small-1 { 
             width: 50px; height: 50px; font-size: 1.5rem;
             left: 70px; top: 50px; z-index: 5; opacity: 0.8;
-            animation: floatSmall 5s ease-in-out infinite 1s;
+            animation: floatSmall 5s ease-in-out infinite 1s; /* Magnifying Glass */
         }
+        
         .float-small-2 { 
             width: 60px; height: 60px; font-size: 1.8rem;
             right: 60px; bottom: 40px; z-index: 8;
-            animation: floatSmall 6s ease-in-out infinite 0.5s;
+            animation: floatSmall 6s ease-in-out infinite 0.5s; /* Shirt */
         }
 
         @keyframes floatMain {
@@ -145,18 +147,18 @@
 
         <div class="flex-1 px-6 pt-16 pb-8 flex flex-col relative z-10 overflow-y-auto no-scrollbar">
             
-            <!-- 3D CLOTH SCENE -->
-            <div class="cloth-scene">
-                <div class="float-icon float-main">👕</div>
-                <div class="float-icon float-small-1">👗</div>
-                <div class="float-icon float-small-2">🧥</div>
+            <!-- 3D ANALYSIS SCENE -->
+            <div class="scan-scene">
+                <div class="float-icon float-main">⚡️</div>
+                <div class="float-icon float-small-1">🔍</div>
+                <div class="float-icon float-small-2">👕</div>
             </div>
 
             <!-- Header -->
             <div class="text-center mb-8">
-                <h1 class="text-3xl font-black text-white mb-2 leading-tight">Out of Try-Ons?</h1>
+                <h1 class="text-3xl font-black text-white mb-2 leading-tight">Out of Analysis?</h1>
                 <p class="text-[#A0A0A0] text-sm px-4 leading-relaxed">
-                    Visualize more outfits on yourself instantly.
+                    Digitize more items from your wardrobe instantly.
                 </p>
             </div>
 
@@ -168,12 +170,12 @@
                     <div class="check-circle"></div>
                     <div class="flex-1">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-white text-lg">10 Try-Ons</span>
-                            <span class="font-bold text-lg text-shiny">$2.99</span>
+                            <span class="font-bold text-white text-lg title-text">10 Credits</span>
+                            <span class="font-bold text-lg text-shiny">$1.99</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <p class="text-xs text-[#A0A0A0] font-medium">Quick style check</p>
-                            <p class="text-[10px] text-[#737373]">$0.30 / look</p>
+                            <p class="text-xs text-[#A0A0A0] font-medium">Add new items</p>
+                            <p class="text-[10px] text-[#737373]">$0.20 / item</p>
                         </div>
                     </div>
                 </div>
@@ -189,16 +191,16 @@
                         <div class="check-circle z-20"></div>
                         <div class="flex-1 z-20">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-[#7900FF] text-xl">30 Try-Ons</span>
+                                <span class="font-bold text-[#7900FF] text-xl title-text">50 Credits</span>
                                 <div class="flex flex-col items-end">
-                                    <span class="font-bold text-xl text-shiny">$5.99</span>
+                                    <span class="font-bold text-xl text-shiny">$4.99</span>
                                 </div>
                             </div>
                             <div class="flex justify-between items-center">
-                                <p class="text-xs text-[#E0E0E0] font-medium">Full wardrobe refresh</p>
+                                <p class="text-xs text-[#E0E0E0] font-medium">Scan your whole closet</p>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[10px] text-[#737373] line-through">$8.99</span>
-                                    <span class="text-[10px] font-bold text-[#00E5FF] bg-[#00E5FF]/10 px-1.5 py-0.5 rounded border border-[#00E5FF]/20">$0.20 / look</span>
+                                    <span class="text-[10px] text-[#737373] line-through">$9.99</span>
+                                    <span class="text-[10px] font-bold text-[#00E5FF] bg-[#00E5FF]/10 px-1.5 py-0.5 rounded border border-[#00E5FF]/20">$0.10 / item</span>
                                 </div>
                             </div>
                         </div>
@@ -210,16 +212,16 @@
             <!-- Footer Area -->
             <div class="mt-auto">
                 <button class="main-btn mb-6" id="purchaseBtn">
-                    Purchase 30 Try-Ons
+                    Purchase 50 Credits
                 </button>
 
                 <!-- Upsell Box -->
                 <div class="upsell-box rounded-2xl p-4 flex items-center gap-3">
                     <div class="w-10 h-10 bg-[#292929] rounded-full flex items-center justify-center text-xl shadow-sm flex-shrink-0 border border-[#404040]">💎</div>
                     <div class="flex-1">
-                        <p class="text-xs font-bold text-white mb-0.5">Need more looks?</p>
+                        <p class="text-xs font-bold text-white mb-0.5">Want to scan more?</p>
                         <p class="text-[10px] text-[#A0A0A0] leading-tight">
-                            Upgrade to Pro and get <span class="font-bold text-[#7900FF]">100 try-ons monthly</span>.
+                            Upgrade to Pro and get <span class="font-bold text-[#7900FF]">300 analysis credits monthly</span>.
                         </p>
                     </div>
                     <button class="bg-[#292929] text-white text-[10px] font-bold px-3 py-2 rounded-lg border border-[#404040] hover:bg-[#333]">View Pro</button>
@@ -232,19 +234,35 @@
 
     <script>
         function selectPack(packId) {
-            // Reset styles
-            document.querySelectorAll('.glass-card').forEach(el => el.classList.remove('selected'));
+            // 1. Reset all cards
+            document.querySelectorAll('.glass-card').forEach(el => {
+                el.classList.remove('selected');
+                // Reset title color to white
+                const title = el.querySelector('.title-text');
+                if(title) {
+                    title.classList.remove('text-[#7900FF]');
+                    title.classList.add('text-white');
+                }
+            });
             
-            // Set Active
+            // 2. Select clicked card
             const targetCard = document.getElementById('card-' + packId);
-            if(targetCard) targetCard.classList.add('selected');
+            if(targetCard) {
+                targetCard.classList.add('selected');
+                // Set title color to purple
+                const title = targetCard.querySelector('.title-text');
+                if(title) {
+                    title.classList.remove('text-white');
+                    title.classList.add('text-[#7900FF]');
+                }
+            }
 
-            // Update Button
+            // 3. Update Button
             const btn = document.getElementById('purchaseBtn');
             if (packId === 'pack1') {
-                btn.innerText = "Purchase 10 Try-Ons - $2.99";
+                btn.innerText = "Purchase 10 Credits - $1.99";
             } else {
-                btn.innerText = "Purchase 30 Try-Ons - $5.99";
+                btn.innerText = "Purchase 50 Credits - $4.99";
             }
         }
     </script>

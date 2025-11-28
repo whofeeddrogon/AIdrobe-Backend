@@ -135,11 +135,11 @@ struct SuggestionDarkView: View {
                                         HStack {
                                             Text("20 Credits")
                                                 .font(.system(size: 18, weight: .bold))
-                                                .foregroundColor(Color.white)
+                                                .foregroundColor(selectedPack == "pack1" ? Color(hex: "7900FF") : Color.white)
                                             Spacer()
                                             Text("$0.99")
                                                 .font(.system(size: 18, weight: .bold))
-                                                .foregroundColor(Color.white)
+                                                .foregroundColor(selectedPack == "pack1" ? Color(hex: "7900FF") : Color.white)
                                         }
                                         
                                         HStack {
