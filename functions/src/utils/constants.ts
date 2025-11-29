@@ -42,3 +42,138 @@ export const DEFAULT_TRYON_PROMPT = `**GENERATE ONLY A SINGLE, HIGH-FIDELITY IMA
 4.  **Realism & Blending:** Ensure seamless, realistic integration with natural fabric drape, texture, and fit according to the subject's body shape. The new garments must flawlessly match the 'input_image' scene's original lighting, shadows, and color grading.
 
 **FINAL OUTPUT QUALITY:** The final image must be high-fidelity and appear as an imperceptible, photorealistic edit.`;
+
+export const DEFAULT_SUGGESTION_PROMPT = `
+User Info: {{USER_INFO}}
+Wardrobe: {{WARDROBE}}
+Request: {{SCENARIO}}
+
+**YOUR TASK:** Analyze the user's request and the detailed descriptions of all available clothes. Select the best items to form a coherent and stylish outfit that matches the user's needs (like weather, occasion, or color theme).
+
+**IMPORTANT RULES:**
+- Only use items from the provided wardrobe list
+- Each recommended item ID must exist in the provided clothing_items array
+- If the wardrobe doesn't have suitable items for the request, suggest the best available alternatives
+- **OUTFIT COMPLETENESS RULE**: Every outfit MUST include:
+  * EITHER: At least 1 bottom wear (pants/jeans/shorts/skirt) AND at least 1 top wear (t-shirt/shirt/blouse/sweater)
+  * OR: 1 full-body garment (dress/jumpsuit) that covers both top and bottom
+  * You CANNOT recommend only bottoms, only tops, or only accessories - the outfit must be wearable!
+- **CRITICAL LAYERING ORDER**: Order the recommendation array from innermost to outermost layers (bottom to top, inside to outside). This is essential for virtual try-on technology. Follow this sequence:
+  1. Base layers (underwear if visible)
+  2. Bottom wear (pants, jeans, shorts, skirts)
+  3. Top wear base layer (t-shirts, shirts, blouses)
+  4. Mid layers (sweaters, vests)
+  5. Outer layers (jackets, coats, blazers)
+  6. Footwear (shoes, boots, sneakers)
+  7. Accessories (hats, scarves, bags, jewelry, sunglasses)
+
+**OUTPUT FORMAT:**
+Your response MUST be a single, valid JSON object. Do not add any text, explanations, or markdown formatting before or after the JSON object. The JSON object must contain exactly four keys: "recommendation", "description", "category", and "name".
+
+1. \`recommendation\`: An array of strings ordered by layering sequence (innermost first, outermost last). Each string MUST be the ID of a selected clothing item from the provided wardrobe list.
+2. \`description\`: A helpful and stylish explanation **in English** detailing why you chose this combination. It should justify your choices based on the user's request and how the items complement each other.
+3. \`category\`: Choose the single most appropriate category for this entire outfit from this list: ["Casual", "Business Casual", "Business Formal", "Smart Casual", "Street Style", "Athletic", "Evening", "Party", "Date Night", "Weekend", "Travel", "Minimalist", "Bohemian", "Classic", "Trendy", "Vintage", "Sporty", "Elegant", "Edgy", "Romantic"].
+4. \`name\`: A short, creative title for this specific outfit combination (2 to 4 words).
+
+**EXAMPLE RESPONSE:**
+{
+  "recommendation": ["ID_23", "ID_34", "ID_76"],
+  "description": "I've created a stylish and functional outfit for a cool, rainy day. The water-resistant trench coat will keep you dry, while the wool sweater provides warmth. The dark pants are suitable for an office environment and are less likely to show splashes.",
+  "category": "Smart Casual",
+  "name": "Rainy Day Office Look"
+}
+`;
+
+export const DEFAULT_SUGGESTION_PROMPT_OFFICE = `
+User Info: {{USER_INFO}}
+Wardrobe: {{WARDROBE}}
+
+**SPECIFIC CONTEXT: OFFICE / WORK**
+Create a professional, polished, and office-appropriate outfit.
+- Focus on smart-casual or business formal pieces suitable for a workplace environment.
+- Prioritize a clean, put-together look that commands respect while remaining comfortable for a workday.
+- Avoid overly casual items like distressed jeans or gym wear unless styled very smartly.
+- Blazers, shirts, trousers, skirts, and smart shoes are often good choices.
+
+**YOUR TASK:** Analyze the specific context above and the detailed descriptions of all available clothes. Select the best items to form a coherent and stylish outfit that matches the user's needs.
+
+**IMPORTANT RULES:**
+- Only use items from the provided wardrobe list
+- Each recommended item ID must exist in the provided clothing_items array
+- If the wardrobe doesn't have suitable items for the request, suggest the best available alternatives
+- **OUTFIT COMPLETENESS RULE**: Every outfit MUST include:
+  * EITHER: At least 1 bottom wear (pants/jeans/shorts/skirt) AND at least 1 top wear (t-shirt/shirt/blouse/sweater)
+  * OR: 1 full-body garment (dress/jumpsuit) that covers both top and bottom
+  * You CANNOT recommend only bottoms, only tops, or only accessories - the outfit must be wearable!
+- **CRITICAL LAYERING ORDER**: Order the recommendation array from innermost to outermost layers (bottom to top, inside to outside). This is essential for virtual try-on technology. Follow this sequence:
+  1. Base layers (underwear if visible)
+  2. Bottom wear (pants, jeans, shorts, skirts)
+  3. Top wear base layer (t-shirts, shirts, blouses)
+  4. Mid layers (sweaters, vests)
+  5. Outer layers (jackets, coats, blazers)
+  6. Footwear (shoes, boots, sneakers)
+  7. Accessories (hats, scarves, bags, jewelry, sunglasses)
+
+**OUTPUT FORMAT:**
+Your response MUST be a single, valid JSON object. Do not add any text, explanations, or markdown formatting before or after the JSON object. The JSON object must contain exactly four keys: "recommendation", "description", "category", and "name".
+
+1. \`recommendation\`: An array of strings ordered by layering sequence (innermost first, outermost last). Each string MUST be the ID of a selected clothing item from the provided wardrobe list.
+2. \`description\`: A helpful and stylish explanation **in English** detailing why you chose this combination. It should justify your choices based on the user's request and how the items complement each other.
+3. \`category\`: Choose the single most appropriate category for this entire outfit from this list: ["Casual", "Business Casual", "Business Formal", "Smart Casual", "Street Style", "Athletic", "Evening", "Party", "Date Night", "Weekend", "Travel", "Minimalist", "Bohemian", "Classic", "Trendy", "Vintage", "Sporty", "Elegant", "Edgy", "Romantic"].
+4. \`name\`: A short, creative title for this specific outfit combination (2 to 4 words).
+
+**EXAMPLE RESPONSE:**
+{
+  "recommendation": ["ID_23", "ID_34", "ID_76"],
+  "description": "I've created a stylish and functional outfit for a cool, rainy day. The water-resistant trench coat will keep you dry, while the wool sweater provides warmth. The dark pants are suitable for an office environment and are less likely to show splashes.",
+  "category": "Smart Casual",
+  "name": "Rainy Day Office Look"
+}
+`;
+
+export const DEFAULT_SUGGESTION_PROMPT_SCHOOL = `
+User Info: {{USER_INFO}}
+Wardrobe: {{WARDROBE}}
+
+**SPECIFIC CONTEXT: SCHOOL / UNIVERSITY**
+Create a comfortable, stylish, and appropriate outfit for a school or university setting.
+- Focus on casual or smart-casual pieces that are good for sitting in classes and walking around campus.
+- Prioritize comfort and self-expression while maintaining a neat appearance.
+- Avoid overly formal wear unless specified.
+- Sneakers, jeans, hoodies, t-shirts, and comfortable layers are often good choices.
+
+**YOUR TASK:** Analyze the specific context above and the detailed descriptions of all available clothes. Select the best items to form a coherent and stylish outfit that matches the user's needs.
+
+**IMPORTANT RULES:**
+- Only use items from the provided wardrobe list
+- Each recommended item ID must exist in the provided clothing_items array
+- If the wardrobe doesn't have suitable items for the request, suggest the best available alternatives
+- **OUTFIT COMPLETENESS RULE**: Every outfit MUST include:
+  * EITHER: At least 1 bottom wear (pants/jeans/shorts/skirt) AND at least 1 top wear (t-shirt/shirt/blouse/sweater)
+  * OR: 1 full-body garment (dress/jumpsuit) that covers both top and bottom
+  * You CANNOT recommend only bottoms, only tops, or only accessories - the outfit must be wearable!
+- **CRITICAL LAYERING ORDER**: Order the recommendation array from innermost to outermost layers (bottom to top, inside to outside). This is essential for virtual try-on technology. Follow this sequence:
+  1. Base layers (underwear if visible)
+  2. Bottom wear (pants, jeans, shorts, skirts)
+  3. Top wear base layer (t-shirts, shirts, blouses)
+  4. Mid layers (sweaters, vests)
+  5. Outer layers (jackets, coats, blazers)
+  6. Footwear (shoes, boots, sneakers)
+  7. Accessories (hats, scarves, bags, jewelry, sunglasses)
+
+**OUTPUT FORMAT:**
+Your response MUST be a single, valid JSON object. Do not add any text, explanations, or markdown formatting before or after the JSON object. The JSON object must contain exactly four keys: "recommendation", "description", "category", and "name".
+
+1. \`recommendation\`: An array of strings ordered by layering sequence (innermost first, outermost last). Each string MUST be the ID of a selected clothing item from the provided wardrobe list.
+2. \`description\`: A helpful and stylish explanation **in English** detailing why you chose this combination. It should justify your choices based on the user's request and how the items complement each other.
+3. \`category\`: Choose the single most appropriate category for this entire outfit from this list: ["Casual", "Business Casual", "Business Formal", "Smart Casual", "Street Style", "Athletic", "Evening", "Party", "Date Night", "Weekend", "Travel", "Minimalist", "Bohemian", "Classic", "Trendy", "Vintage", "Sporty", "Elegant", "Edgy", "Romantic"].
+4. \`name\`: A short, creative title for this specific outfit combination (2 to 4 words).
+
+**EXAMPLE RESPONSE:**
+{
+  "recommendation": ["ID_23", "ID_34", "ID_76"],
+  "description": "I've created a stylish and functional outfit for a cool, rainy day. The water-resistant trench coat will keep you dry, while the wool sweater provides warmth. The dark pants are suitable for an office environment and are less likely to show splashes.",
+  "category": "Smart Casual",
+  "name": "Rainy Day Office Look"
+}
+`;

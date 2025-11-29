@@ -80,7 +80,10 @@ export interface TryOnRequestData {
 
 export interface SuggestionRequestData {
   uuid: string;
-  user_request: string;
+  user_request?: string;
+  wardrobe?: string;
+  user_info?: string;
+  scenario?: string;
   temperature?: number;
   useRandomModel?: boolean;
 }

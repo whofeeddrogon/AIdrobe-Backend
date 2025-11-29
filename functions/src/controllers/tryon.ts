@@ -38,7 +38,7 @@ export const virtualTryOn = functions
 			// 2. Nano Banana: 2 kıyafet VEYA model_type='nano-banana'
 			// 3. Legacy: Diğer durumlar (Tek kıyafet)
 
-            const proPrompt = await getRemoteConfigValue("tryon_pro_prompt", DEFAULT_TRYON_PROMPT);
+            const geminiPrompt = await getRemoteConfigValue("try_on_gemini_prompt", DEFAULT_TRYON_PROMPT);
 
 			// Model seçimi ve mantığı
 			// 1. Nano Banana Pro: 3+ kıyafet VEYA model_type='nano-banana-pro'
@@ -54,7 +54,7 @@ export const virtualTryOn = functions
 				const response = await axios.post(
 					"https://fal.run/fal-ai/nano-banana-pro/edit",
 					{
-						prompt: proPrompt,
+						prompt: geminiPrompt,
 						image_urls: allImages,
 					},
 					{
@@ -74,7 +74,7 @@ export const virtualTryOn = functions
 				const response = await axios.post(
 					"https://fal.run/fal-ai/nano-banana/edit",
 					{
-						prompt: proPrompt,
+						prompt: geminiPrompt,
 						image_urls: allImages,
 					},
 					{

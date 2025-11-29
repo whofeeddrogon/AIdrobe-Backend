@@ -3,6 +3,8 @@ import axios, { AxiosError } from "axios";
 import { falKey, runtimeOptions } from "../config";
 import { checkOrUpdateQuota } from "../utils/quota";
 import { extractJson } from "../utils/helpers";
+import { getRemoteConfigValue } from "../utils/remoteConfig";
+import { DEFAULT_SUGGESTION_PROMPT, DEFAULT_SUGGESTION_PROMPT_OFFICE, DEFAULT_SUGGESTION_PROMPT_SCHOOL } from "../utils/constants";
 import { SuggestionRequestData, GetOutfitSuggestionResponse } from "../types";
 
 /**
@@ -13,10 +15,10 @@ export const getOutfitSuggestion = functions
     .https.onCall(async (payload: any, context: functions.https.CallableContext): Promise<GetOutfitSuggestionResponse> => {
       
       const data: SuggestionRequestData = payload.data || payload;
-      const { uuid, user_request, temperature, useRandomModel } = data;
+      const { uuid, user_request, temperature, useRandomModel, scenario, wardrobe, user_info } = data;
 
-      if (!uuid || !user_request) {
-        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (uuid, user_request).");
+      if (!uuid) {
+        throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (uuid).");
       }
 
       try {
@@ -24,8 +26,36 @@ export const getOutfitSuggestion = functions
         
         const newQuota = await checkOrUpdateQuota(uuid, "remainingSuggestions");
 
-        // Client artık tam prompt'u gönderiyor, ekleme yapmıyoruz.
-        const prompt = user_request;
+        let prompt = "";
+
+        if (scenario) {
+            // Scenario varsa Remote Config'den prompt çek
+            const configKey = `suggestion_prompt_${scenario}`;
+            console.log(`Scenario detected: ${scenario}. Fetching prompt from Remote Config key: ${configKey}`);
+            
+            // Senaryoya göre doğru default prompt'u seç
+            let defaultPrompt = DEFAULT_SUGGESTION_PROMPT;
+            if (scenario === "office") {
+                defaultPrompt = DEFAULT_SUGGESTION_PROMPT_OFFICE;
+            } else if (scenario === "school") {
+                defaultPrompt = DEFAULT_SUGGESTION_PROMPT_SCHOOL;
+            }
+
+            let template = await getRemoteConfigValue(configKey, defaultPrompt);
+            
+            // Placeholder'ları doldur
+            template = template.replace("{{WARDROBE}}", wardrobe || "");
+            template = template.replace("{{USER_INFO}}", user_info || "");
+            template = template.replace("{{SCENARIO}}", scenario);
+            
+            prompt = template;
+        } else {
+            // Scenario yoksa user_request (custom prompt) kullan
+            if (!user_request) {
+                 throw new functions.https.HttpsError("invalid-argument", "User request veya scenario gereklidir.");
+            }
+            prompt = user_request;
+        }
 
         // Model Seçimi
         const defaultModel = "google/gemini-2.5-flash";
