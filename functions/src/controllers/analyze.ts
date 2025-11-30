@@ -22,6 +22,7 @@ export const analyzeClothingImage = functions
       }
 
       try {
+        functions.logger.info("Clothing analysis started", { uuid });
         const newQuota = await checkOrUpdateQuota(uuid, "remainingClothAnalysis");
 
         const categoryList = [
@@ -55,7 +56,7 @@ export const analyzeClothingImage = functions
 
         const bgRemovedImageUrl = bgResponse.data?.image?.url;
         if (!bgRemovedImageUrl) {
-          console.error(`fal-ai/birefnet/v2 HATA: response:`, bgResponse);
+          functions.logger.error("fal-ai/birefnet/v2 Error", { response: bgResponse.data });
           throw new functions.https.HttpsError("internal", "fal-ai/birefnet/v2 Hatası");
         }
 
@@ -86,14 +87,15 @@ export const analyzeClothingImage = functions
 
             return result;
         } catch (e: any) {
-            console.error("LLM JSON parse hatası:", llmOutput, e);
+            functions.logger.error("LLM JSON parse error", { llmOutput, error: e });
             throw new functions.https.HttpsError("internal", "Yapay zekanın cevabı anlaşılamadı. Lütfen tekrar deneyin.");
         }
       } catch (error: any) {
         if (error.code === "resource-exhausted" || error.code === "permission-denied") {
+            functions.logger.warn("Quota exhausted", { uuid, feature: "Clothing Analysis" });
             throw error;
         }
-        console.error("Fal API hatası (analyzeClothingImage):", error);
+        functions.logger.error("Fal API Error (analyzeClothingImage)", { error });
         throw new functions.https.HttpsError("internal", "Kıyafet analizi sırasında bir hata oluştu.");
       }
     });

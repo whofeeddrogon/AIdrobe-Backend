@@ -26,42 +26,48 @@ export const getOutfitSuggestion = functions
       }
 
       try {
-        console.log(`Outfit suggestion başlatılıyor - User: ${uuid}`);
+        functions.logger.info("Outfit suggestion started", { uuid, scenario, useRandomModel });
         
         const newQuota = await checkOrUpdateQuota(uuid, "remainingSuggestions");
 
-        let prompt = "";
+        // Kullanıcı isteği veya senaryo içeriğini belirle
+        let requestContent = "";
 
         if (scenario) {
-            // Scenario varsa Remote Config'den prompt çek
-            const configKey = `suggestion_prompt_${scenario}`;
-            console.log(`Scenario detected: ${scenario}. Fetching prompt from Remote Config key: ${configKey}`);
+            // Senaryo varsa, önce Remote Config'den bu senaryoya özel promptu çekmeye çalış
+            const scenarioKey = `suggestion_prompt_${scenario}`;
             
-            // Her zaman genel default prompt'u kullan, scenario placeholder'ı ile özelleşir
-            let template = await getRemoteConfigValue(configKey, DEFAULT_SUGGESTION_PROMPT);
+            // Eğer Remote Config'de bu senaryo yoksa kullanılacak vurgulu varsayılan metin
+            const defaultScenarioContent = `**SCENARIO:** ${scenario.toUpperCase()}\nCreate an outfit recommendation that is PERFECTLY suited for this specific scenario/occasion.`;
             
-            // Placeholder'ları doldur
-            template = template.replace("{{WARDROBE}}", wardrobe || "");
-            template = template.replace("{{USER_INFO}}", user_info || "");
-            template = template.replace("{{SCENARIO}}", scenario);
-            
-            prompt = template;
+            functions.logger.info("Scenario detected", { scenario, configKey: scenarioKey });
+            requestContent = await getRemoteConfigValue(scenarioKey, defaultScenarioContent);
+        } else if (user_request) {
+            // Senaryo yoksa direkt kullanıcının yazdığı isteği kullan
+            requestContent = user_request;
         } else {
-            // Scenario yoksa user_request (custom prompt) kullan
-            if (!user_request) {
-                 throw new functions.https.HttpsError("invalid-argument", "User request veya scenario gereklidir.");
-            }
-            prompt = user_request;
+            throw new functions.https.HttpsError("invalid-argument", "User request veya scenario gereklidir.");
         }
+
+        // Her zaman ana prompt şablonunu kullan (Remote Config: suggestion_main_prompt)
+        const configKey = "suggestion_main_prompt";
+        
+        let template = await getRemoteConfigValue(configKey, DEFAULT_SUGGESTION_PROMPT);
+        
+        // Placeholder'ları doldur
+        template = template.replace("{{WARDROBE}}", wardrobe || "");
+        template = template.replace("{{USER_INFO}}", user_info || "");
+        // Artık {{SCENARIO}} yerine {{USER_REQUEST}} kullanıyoruz
+        template = template.replace("{{USER_REQUEST}}", requestContent);
+        
+        const prompt = template;
 
         // Model Seçimi
         const defaultModel = "google/gemini-2.5-flash";
         const randomModels = [
           "google/gemini-2.5-flash",
           "google/gemini-2.5-flash-lite",
-          "openai/gpt-oss-120b",
           "openai/gpt-4o-mini",
-          "openai/gpt-5-mini",
           "meta-llama/llama-3.1-70b-instruct",
           "meta-llama/llama-4-scout"
         ];
@@ -72,8 +78,7 @@ export const getOutfitSuggestion = functions
           selectedModel = randomModels[randomIndex];
         }
 
-        console.log(`Seçilen Model: ${selectedModel}, Temperature: ${temperature}`);
-        console.log("FAL AI Outfit Suggestion API'sine istek gönderiliyor...");
+        functions.logger.info("Model selected", { model: selectedModel, temperature });
         
         const apiKey = falKey.value();
         
@@ -90,7 +95,7 @@ export const getOutfitSuggestion = functions
             },
         );
 
-        console.log("FAL AI Outfit Suggestion response alındı:", response.status);
+        functions.logger.info("FAL AI response received", { status: response.status });
 
         const llmOutput: string = response.data?.output ?? "{}";
         try {
@@ -99,7 +104,7 @@ export const getOutfitSuggestion = functions
           // Basit validasyon - artık recommendation içeriğini kontrol etmiyoruz çünkü prompt tamamen dışarıdan geliyor
           // Ancak yine de JSON dönmesini bekliyoruz
           
-          console.log(`Outfit suggestion başarıyla tamamlandı - User: ${uuid}`);
+          functions.logger.info("Outfit suggestion completed", { uuid });
 
           const result: GetOutfitSuggestionResponse = {
             recommendation: parsedJson.recommendation ?? [],
@@ -112,23 +117,23 @@ export const getOutfitSuggestion = functions
           return result;
           
         } catch (e: any) {
-          console.error("LLM JSON parse hatası:", llmOutput, e);
+          functions.logger.error("LLM JSON parse error", { llmOutput, error: e });
           throw new functions.https.HttpsError("internal", "Stil danışmanının cevabı anlaşılamadı. Lütfen tekrar deneyin.");
         }
       } catch (error: any) {
         if (error.code === "resource-exhausted" || error.code === "permission-denied") {
-            console.log(`Quota exhausted for user ${uuid} - Outfit Suggestion`);
+            functions.logger.warn("Quota exhausted", { uuid, feature: "Outfit Suggestion" });
             throw error;
         }
         
         const axiosError = error as AxiosError;
         if (axiosError.response) {
-            console.error("FAL AI Outfit Suggestion API hatası:", {
+            functions.logger.error("FAL AI API Error", {
                 status: axiosError.response.status,
                 data: axiosError.response.data
             });
         } else {
-            console.error("FAL AI Outfit Suggestion genel hatası:", error.message);
+            functions.logger.error("FAL AI General Error", { error: error.message });
         }
         
         throw new functions.https.HttpsError("internal", "Kombin önerisi alınırken bir hata oluştu.");

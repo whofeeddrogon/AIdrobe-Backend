@@ -48,12 +48,12 @@ User Info: {{USER_INFO}}
 Wardrobe: {{WARDROBE}}
 
 =================================================================
-**CRITICAL CONTEXT & SCENARIO:**
-{{SCENARIO}}
+**USER REQUEST:**
+{{USER_REQUEST}}
 =================================================================
 
 **YOUR TASK:**
-Analyze the **CRITICAL CONTEXT** provided above. You MUST create an outfit that is perfectly suitable for this specific scenario.
+Analyze the **USER REQUEST** provided above. You MUST create an outfit that is perfectly suitable for this specific scenario.
 Select the best items from the provided wardrobe to form a coherent and stylish outfit that matches the user's needs (weather, occasion, formality, color theme).
 
 **IMPORTANT RULES:**

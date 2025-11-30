@@ -22,11 +22,10 @@ export const virtualTryOn = functions
 		}
 
 		try {
-			console.log(`Virtual try-on başlatılıyor - User: ${uuid}`);
+			functions.logger.info("Virtual try-on started", { uuid, itemCount: clothingImages.length });
 
 			// Maliyet hesaplama: Her kıyafet için 1 token
 			const cost = clothingImages.length;
-			console.log(`Try-on cost calculated: ${cost} tokens for ${clothingImages.length} items.`);
 
 			const newQuota = await checkOrUpdateQuota(uuid, "remainingTryOns", cost);
 
@@ -49,7 +48,7 @@ export const virtualTryOn = functions
 			const allImages = [`data:image/jpeg;base64,${pose_image_base_64}`, ...clothingImages.map((img) => `data:image/jpeg;base64,${img}`)];
 
 			if (model_type === "nano-banana-pro" || clothingImages.length >= 3) {
-				console.log("FAL AI Nano Banana Pro API'sine istek gönderiliyor...");
+				functions.logger.info("Using Nano Banana Pro", { model: "nano-banana-pro" });
 
 				const response = await axios.post(
 					"https://fal.run/fal-ai/nano-banana-pro/edit",
@@ -65,11 +64,11 @@ export const virtualTryOn = functions
 					}
 				);
 
-				console.log("FAL AI Nano Banana Pro response alındı:", response.status);
+				functions.logger.info("Nano Banana Pro response received", { status: response.status });
 				// /edit endpoint'i genellikle 'image' objesi döner, standart endpointler 'images' array döner. Her ikisini de kontrol edelim.
 				resultImageUrl = response.data?.image?.url || response.data?.images?.[0]?.url;
 			} else if (clothingImages.length === 2) {
-				console.log("FAL AI Nano Banana API'sine istek gönderiliyor...");
+				functions.logger.info("Using Nano Banana", { model: "nano-banana" });
 
 				const response = await axios.post(
 					"https://fal.run/fal-ai/nano-banana/edit",
@@ -85,11 +84,11 @@ export const virtualTryOn = functions
 					}
 				);
 
-				console.log("FAL AI Nano Banana response alındı:", response.status);
+				functions.logger.info("Nano Banana response received", { status: response.status });
 				resultImageUrl = response.data?.image?.url || response.data?.images?.[0]?.url;
 			} else {
 				// Varsayılan (Mevcut) Model - Tek kıyafet
-				console.log("FAL AI Standard Virtual Try-On API'sine istek gönderiliyor...");
+				functions.logger.info("Using Standard Virtual Try-On", { model: "image-apps-v2/virtual-try-on" });
 
 				const response = await axios.post(
 					"https://fal.run/fal-ai/image-apps-v2/virtual-try-on",
@@ -106,7 +105,7 @@ export const virtualTryOn = functions
 					}
 				);
 
-				console.log("FAL AI Standard Virtual Try-On response alındı:", response.status);
+				functions.logger.info("Standard Virtual Try-On response received", { status: response.status });
 				resultImageUrl = response.data?.images?.[0]?.url;
 			}
 
@@ -115,7 +114,7 @@ export const virtualTryOn = functions
 				throw new functions.https.HttpsError("internal", "Sanal deneme sonucu oluşturulamadı. Lütfen tekrar deneyin.");
 			}
 
-			console.log(`Virtual try-on başarıyla tamamlandı - User: ${uuid}`);
+			functions.logger.info("Virtual try-on completed", { uuid });
 
 			// Outfit analizi için LLM çağrısı
 			let outfitAnalysis = {
@@ -129,7 +128,7 @@ export const virtualTryOn = functions
 					throw new Error("clothing_items is empty");
 				}
 
-				console.log("Outfit analizi başlatılıyor...");
+				functions.logger.info("Outfit analysis started (Try-On)");
 
 				const clothingItemsInfo = clothing_items
 					.map((item, index) => `${index + 1}. ${item.name || "Item"} (${item.category || "Unknown"}): ${item.description || "No description"}`)
@@ -184,12 +183,12 @@ export const virtualTryOn = functions
 						description: parsedAnalysis.description || "",
 						category: parsedAnalysis.category || "Casual",
 					};
-					console.log("Outfit analizi başarıyla tamamlandı:", outfitAnalysis);
+					functions.logger.info("Outfit analysis completed", { outfitAnalysis });
 				} else {
-					console.warn("LLM'den geçerli JSON alınamadı, varsayılan değerler kullanılıyor");
+					functions.logger.warn("Invalid JSON from LLM, using defaults");
 				}
 			} catch (analysisError: any) {
-				console.error("Outfit analizi hatası (devam ediliyor):", analysisError);
+				functions.logger.error("Outfit analysis error (continuing)", { error: analysisError });
 				// Analiz hatası olsa bile try-on sonucunu döndürüyoruz
 			}
 
@@ -204,21 +203,20 @@ export const virtualTryOn = functions
             return result;
 		} catch (error: any) {
 			if (error.code === "resource-exhausted" || error.code === "permission-denied") {
-				console.log(`Quota exhausted for user ${uuid} - Virtual Try-On`);
+				functions.logger.warn("Quota exhausted", { uuid, feature: "Virtual Try-On" });
 				throw error;
 			}
 
 			const axiosError = error as AxiosError;
 			if (axiosError.response) {
-				console.error("FAL AI Virtual Try-On API hatası:", {
+				functions.logger.error("FAL AI API Error", {
 					status: axiosError.response.status,
 					data: axiosError.response.data,
-					headers: axiosError.response.headers,
 				});
 			} else if (axiosError.request) {
-				console.error("FAL AI Virtual Try-On network hatası:", axiosError.request);
+				functions.logger.error("FAL AI Network Error", { request: axiosError.request });
 			} else {
-				console.error("FAL AI Virtual Try-On genel hatası:", error.message);
+				functions.logger.error("FAL AI General Error", { error: error.message });
 			}
 
 			throw new functions.https.HttpsError("internal", "Sanal deneme sırasında bir hata oluştu. Lütfen tekrar deneyin.");

@@ -270,3 +270,135 @@ Mevcut abonelik ve reklam gelirlerini destekleyecek yan stratejiler:
 *   **Mantık:** Hangi bölgede hangi renklerin veya markaların daha çok denendiğine dair anonim verilerin moda markalarına rapor olarak sunulması.
 
 * **Şeffaflık:** Kullanıcı verileri satılmaz veya izinsiz üçüncü taraflarla paylaşılmaz.
+
+## **9. Detailed Cost & Revenue Analysis (US Market)**
+
+This section details the unit economics for Free Users, specifically focusing on the Ad-Supported model (Interstitial & Rewarded Ads).
+
+### **9.1. Cost Structure (Expenses)**
+
+| Feature | Model / Logic | Cost per Request (USD) |
+| :--- | :--- | :--- |
+| **Suggestion** | Gemini Flash / Llama 3 | **$0.001** (Fixed) |
+| **Analysis** | BiRefNet + LLaVA | **~$0.01** (Avg. Compute Time) |
+| **Try-On (1 Item)** | Standard Model | **$0.04** (1 Credit) |
+| **Try-On (2 Items)** | Nano Banana | **$0.039** (2 Credits) |
+| **Try-On (3+ Items)** | Nano Banana Pro | **$0.15** (Fixed, N Credits) |
+
+### **9.2. Revenue Assumptions (AdMob US)**
+
+Based on average eCPM rates for Tier-1 countries (USA).
+
+| Ad Format | eCPM (Est.) | Revenue per View |
+| :--- | :--- | :--- |
+| **Interstitial** | ~$20.00 | **$0.02** |
+| **Rewarded Video** | ~$30.00 | **$0.03** |
+
+### **9.3. Profitability Formulas (Free User Flow)**
+
+#### **A. Standard Usage (Using Initial Quota)**
+*User watches Interstitial ads while consuming their initial free rights.*
+
+1.  **Analysis ($P_{analysis}$)**
+    *   **Flow:** 1 Interstitial Ad displayed.
+    *   $$P_{analysis} = Revenue_{int} - Cost_{analysis}$$
+    *   $$P_{analysis} = \$0.02 - \$0.01 = \mathbf{+\$0.01}$$ (Profit)
+
+2.  **Suggestion ($P_{suggestion}$)**
+    *   **Flow:** 1 Interstitial Ad displayed.
+    *   $$P_{suggestion} = Revenue_{int} - Cost_{suggestion}$$
+    *   $$P_{suggestion} = \$0.02 - \$0.001 = \mathbf{+\$0.019}$$ (High Profit)
+
+3.  **Try-On ($P_{tryon}$)**
+    *   **Flow:** 2 Interstitial Ads displayed back-to-back.
+    *   **Scenario 1 (1 Item):**
+        *   $$P = (2 \times \$0.02) - \$0.04 = \mathbf{\$0.00}$$ (Break-even)
+    *   **Scenario 2 (2 Items):**
+        *   $$P = (2 \times \$0.02) - \$0.039 = \mathbf{+\$0.001}$$ (Marginal Profit)
+    *   **Scenario 3 (3+ Items):**
+        *   $$P = (2 \times \$0.02) - \$0.15 = \mathbf{-\$0.11}$$ (Loss)
+        *   *Risk Note:* Multi-item try-ons are loss leaders for free users unless they have accumulated credits via Rewarded Ads.
+
+#### **B. Refill Usage (Rewarded Ads)**
+*User runs out of credits and watches a Rewarded Ad to refill, THEN watches Interstitials while using them.*
+
+1.  **Refill: 3 Analysis Credits**
+    *   **Action:** Watch 1 Rewarded Ad (+$0.03).
+    *   **Usage:** Perform 3 Analyses (Watch 3 Interstitials: 3 * $0.02 = +$0.06).
+    *   **Total Revenue:** $0.09
+    *   **Total Cost:** 3 * $0.01 = $0.03
+    *   **Net Profit:** **+$0.06**
+
+2.  **Refill: 3 Suggestion Credits**
+    *   **Action:** Watch 1 Rewarded Ad (+$0.03).
+    *   **Usage:** Perform 3 Suggestions (Watch 3 Interstitials: 3 * $0.02 = +$0.06).
+    *   **Total Revenue:** $0.09
+    *   **Total Cost:** 3 * $0.001 = $0.003
+    *   **Net Profit:** **+$0.087**
+
+3.  **Refill: 1 Try-On Credit (Standard)**
+    *   **Action:** Watch 1 Rewarded Ad (+$0.03).
+    *   **Usage:** Perform 1 Try-On (1 Item). Watch 2 Interstitials (+$0.04).
+    *   **Total Revenue:** $0.07
+    *   **Cost:** $0.04
+    *   **Net Profit:** **+$0.03**
+
+4.  **Multi-Item Try-On (3+ Items)**
+    *   **Status:** **PREMIUM ONLY**
+    *   **Reason:** Since users can only refill when their balance is 0 and receive small credit packs (e.g., 1 Credit), they cannot accumulate enough free credits to perform a multi-item Try-On (which requires 3+ credits).
+    *   **Strategic Value:** This creates a "Hard Paywall" for the most expensive feature ($0.15 cost), forcing users to buy credits or subscribe to Pro. It eliminates the risk of financial loss on free users.
+
+### 9.4. Strategic Conclusion
+
+*   **Cash Cows:** Analysis and Suggestion features are highly profitable.
+*   **Try-On Strategy:** Free users are limited to Single-Item Try-Ons (profitable). The advanced Multi-Item Try-On is effectively reserved for paying users. This strategy protects margins and creates a strong incentive for upgrading to the Pro plan.
+
+## **10. Revenue Projections (Realistic Early-Stage)**
+
+Acknowledging that reaching 100k users is a long-term challenge, this projection focuses on **achievable early milestones**. Even with a modest user base, the high-margin subscription model generates significant income.
+
+**Assumptions:**
+*   **Net Revenue:** Basic ~$8.50, Pro ~$17.00.
+*   **Usage Profile:** Average User (50% quota usage).
+*   **Conversion:** 8% Total (5% Basic, 3% Pro).
+
+| Metric | Phase 1: Validation | Phase 2: Salary Replacement | Phase 3: Small Business |
+| :--- | :--- | :--- | :--- |
+| **Monthly Active Users (MAU)** | **1,000** | **5,000** | **25,000** |
+| **Free Users (92%)** | 920 | 4,600 | 23,000 |
+| **Basic Subscribers (5%)** | 50 | 250 | 1,250 |
+| **Pro Subscribers (3%)** | 30 | 150 | 750 |
+| | | | |
+| **Ad Revenue (Free Users)** | $230 | $1,150 | $5,750 |
+| **Basic Sub Revenue** | $425 | $2,125 | $10,625 |
+| **Pro Sub Revenue** | $510 | $2,550 | $12,750 |
+| | | | |
+| **TOTAL MONTHLY REVENUE** | **$1,165** | **$5,825** | **$29,125** |
+| *Est. API Costs (~18%)* | *-$210* | *-$1,048* | *-$5,242* |
+| **NET PROFIT (Monthly)** | **$955** | **$4,777** | **$23,883** |
+
+### **Reality Check**
+1.  **1,000 Users:** This is the "Proof of Concept" stage. Even here, the app covers its own server costs and generates ~$1k pocket money.
+2.  **5,000 Users:** This is a very achievable target with decent marketing (TikTok/Reels). At this stage, the app generates a **full-time salary (~$4.7k)**. You don't need millions of users to be financially free.
+3.  **25,000 Users:** This is a successful, stable app business. It generates ~$24k/month, allowing for hiring a small team or aggressive marketing reinvestment.
+
+## **11. Retention Strategy & Churn Management (Risk Analizi)**
+
+Kullanıcı tutundurma (Retention), kullanıcı kazanımından (Acquisition) daha kritiktir. "Bir ay kullanıp gitme" riskini minimize etmek için AIdrobe'un yapısal avantajları ve stratejileri:
+
+### **11.1. The "Lock-in" Effect (Kilitlenme Etkisi)**
+*   **Fark:** AIdrobe, tek seferlik eğlence sunan bir "Avatar" uygulaması değildir. Bir "Utility" (Araç) uygulamasıdır.
+*   **Yatırım:** Kullanıcı gardırobunu dijitalleştirmek için emek harcar (fotoğraf çeker, yükler).
+*   **Sonuç:** 10+ kıyafet yükleyen bir kullanıcının uygulamayı silme oranı (Churn), hiç yüklemeyen birine göre **%60-%70 daha düşüktür**. Kullanıcının verisi (dijital dolabı) içeride olduğu için uygulama vazgeçilmez hale gelir.
+
+### **11.2. "Content Treadmill" (İçerik Döngüsü)**
+Kullanıcı sıkılmasın diye sürekli yeni "Senaryolar" sunulur:
+*   *"Bu hafta sonu yağmurlu, işte yağmura uygun kombinlerin."* (Hava durumu entegrasyonu ile)
+*   *"Sevgililer günü yaklaşıyor, dolabındaki şu kırmızı elbiseyi denedin mi?"*
+*   **Amaç:** Kullanıcıya uygulamayı açması için sürekli yeni bir "Bahane" vermek.
+
+### **11.3. Churn Matematiği ve LTV**
+*   Mobil dünyada ortalama aylık Churn %15 civarındadır. Yani her ay 100 kullanıcının 15'i gider.
+*   **Hedef:** LTV (Lifetime Value) > CAC (Customer Acquisition Cost).
+*   **Hesap:** Bir "Pro" kullanıcının ortalama ömrü 4 ay olsa bile, bu kullanıcıdan **~$68** gelir elde edilir. Eğer yeni bir kullanıcı kazanmanın maliyeti (Reklam) $10 ise, şirket her kullanıcıdan **$58** kar eder ve bu bütçeyi giden kullanıcının yerini doldurmak için kullanır.
+
