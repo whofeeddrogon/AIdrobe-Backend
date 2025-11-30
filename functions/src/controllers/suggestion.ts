@@ -4,7 +4,7 @@ import { falKey, runtimeOptions } from "../config";
 import { checkOrUpdateQuota } from "../utils/quota";
 import { extractJson } from "../utils/helpers";
 import { getRemoteConfigValue } from "../utils/remoteConfig";
-import { DEFAULT_SUGGESTION_PROMPT, DEFAULT_SUGGESTION_PROMPT_OFFICE, DEFAULT_SUGGESTION_PROMPT_SCHOOL } from "../utils/constants";
+import { DEFAULT_SUGGESTION_PROMPT } from "../utils/constants";
 import { SuggestionRequestData, GetOutfitSuggestionResponse } from "../types";
 
 /**
@@ -15,7 +15,11 @@ export const getOutfitSuggestion = functions
     .https.onCall(async (payload: any, context: functions.https.CallableContext): Promise<GetOutfitSuggestionResponse> => {
       
       const data: SuggestionRequestData = payload.data || payload;
-      const { uuid, user_request, temperature, useRandomModel, scenario, wardrobe, user_info } = data;
+      const { uuid, user_request, scenario, wardrobe, user_info } = data;
+      
+      // Default değerler
+      const temperature = data.temperature ?? 0.7;
+      const useRandomModel = data.useRandomModel ?? false;
 
       if (!uuid) {
         throw new functions.https.HttpsError("invalid-argument", "Gerekli parametreler eksik (uuid).");
@@ -33,15 +37,8 @@ export const getOutfitSuggestion = functions
             const configKey = `suggestion_prompt_${scenario}`;
             console.log(`Scenario detected: ${scenario}. Fetching prompt from Remote Config key: ${configKey}`);
             
-            // Senaryoya göre doğru default prompt'u seç
-            let defaultPrompt = DEFAULT_SUGGESTION_PROMPT;
-            if (scenario === "office") {
-                defaultPrompt = DEFAULT_SUGGESTION_PROMPT_OFFICE;
-            } else if (scenario === "school") {
-                defaultPrompt = DEFAULT_SUGGESTION_PROMPT_SCHOOL;
-            }
-
-            let template = await getRemoteConfigValue(configKey, defaultPrompt);
+            // Her zaman genel default prompt'u kullan, scenario placeholder'ı ile özelleşir
+            let template = await getRemoteConfigValue(configKey, DEFAULT_SUGGESTION_PROMPT);
             
             // Placeholder'ları doldur
             template = template.replace("{{WARDROBE}}", wardrobe || "");
@@ -75,7 +72,7 @@ export const getOutfitSuggestion = functions
           selectedModel = randomModels[randomIndex];
         }
 
-        console.log(`Seçilen Model: ${selectedModel}, Temperature: ${temperature ?? 0.7}`);
+        console.log(`Seçilen Model: ${selectedModel}, Temperature: ${temperature}`);
         console.log("FAL AI Outfit Suggestion API'sine istek gönderiliyor...");
         
         const apiKey = falKey.value();
@@ -86,7 +83,7 @@ export const getOutfitSuggestion = functions
               model: selectedModel,
               prompt: prompt,
               max_tokens: 1024,
-              temperature: temperature ?? 0.7,
+              temperature: temperature,
             },
             { 
               headers: { "Authorization": `Key ${apiKey}`, "Content-Type": "application/json" },
